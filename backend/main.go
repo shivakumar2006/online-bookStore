@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -30,6 +31,16 @@ func main() {
 	router := mux.NewRouter()
 	routes.BookRoutes(router)
 
+	// Setup CORS
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"}, // frontend origin
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+	})
+
+	handler := c.Handler(router)
+
 	log.Println("🚀 Server running on port :8080")
-	http.ListenAndServe(":8080", router)
+	http.ListenAndServe(":8080", handler)
 }
