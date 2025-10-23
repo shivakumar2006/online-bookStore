@@ -1,0 +1,233 @@
+[
+    {
+        "id": "1",
+        "title": "The Art of Seduction",
+        "author": "Robert Greene",
+        "price": "399.00",
+        "stock": "12",
+        "category": "Non-fiction / Self-Help / Psychology / Strategy",
+        "language": "English",
+        "description": "'The Art of Seduction' by Robert Greene explores the psychological dynamics of influence and persuasion. It dissects historical and archetypal 'seducers' to reveal strategies for captivating and manipulating others in various social contexts. This provocative guide examines the subtle art of attraction and power in human interaction.",
+        "coverImage": "art-of-seduction.png"
+    },
+    {
+        "id": "2",
+        "title": "48 Laws of Power",
+        "author": "Robert Greene",
+        "price": "449.00",
+        "stock": "22",
+        "category": "Non-fiction / Self-Help / Strategy / Political Science / History",
+        "language": "English",
+        "description": "'The 48 Laws of Power' by Robert Greene is a guide to understanding and wielding influence, drawing lessons from history's most powerful figures. It presents 48 principles for gaining, maintaining, and defending against power through strategic action and manipulation. The book offers a stark, often controversial, look at human dynamics and control.",
+        "coverImage": "48-laws-of-power.png"
+    },
+    {
+        "id": "3",
+        "title": "Can't Hurt Me",
+        "author": "David Goggins",
+        "price": "499.00",
+        "stock": "8",
+        "category": "Non-fiction / Self-Help / Memoir / Motivational / Personal Development",
+        "language": "English",
+        "description": "'Can't Hurt Me' is David Goggins' raw memoir chronicling his journey from a difficult childhood and struggles with obesity to becoming an elite U.S. Navy SEAL, Army Ranger, and ultra-endurance athlete. He shares his philosophy of extreme mental fortitude and self-discipline, challenging readers to push past their perceived limitations and achieve greatness by confronting their deepest fears.",
+        "coverImage": "can't-hurt-me.png"
+    },
+    {
+        "id": "4",
+        "title": "Never Finished",
+        "author": "Never Finished",
+        "price": "503.00",
+        "stock": "48",
+        "category": "Non-fiction / Self-Help / Motivational / Personal Development",
+        "language": "English",
+        "description": "'Never Finished' serves as a powerful follow-up to 'Can't Hurt Me,' delving deeper into David Goggins' philosophy of continuous self-mastery. He shares further insights, lessons, and advanced strategies for overcoming complacency, developing an unbreakable mindset, and unlocking even greater potential. The book encourages readers to stay in the fight, constantly evolving and refusing to settle for anything less than their absolute best.",
+        "coverImage": "never-finished.png"
+    },
+    {
+        "id": "5",
+        "title": "Rich Dad Poor Dad",
+        "author": "Robert Kiyooski",
+        "price": "229.00",
+        "stock": "33",
+        "category": "Non-fiction / Personal Finance / Financial Literacy / Self-Help",
+        "language": "English",
+        "description": "'Rich Dad Poor Dad' contrasts the financial philosophies of Robert Kiyosaki's two 'dads'—his educated but financially struggling biological father and his wealthy mentor. It challenges conventional wisdom about money, advocating for financial education, asset building, and entrepreneurship over traditional employment. The book aims to shift readers' perspectives on wealth, work, and investing.",
+        "coverImage": "rich-dad-poor-dad.png"
+    },
+    {
+        "id": "6",
+        "title": "Surrounded by Idiots",
+        "author": "Thomas Erikson",
+        "price": "249.00",
+        "stock": "86",
+        "category": "Non-fiction / Psychology / Communication / Self-Help / Business",
+        "language": "English",
+        "description": "'Surrounded by Idiots' introduces a practical system for understanding human behavior by categorizing people into four color-coded personality types: Red, Yellow, Green, and Blue. Thomas Erikson explains how these different styles perceive the world and communicate, offering insights and strategies to improve interactions, reduce misunderstandings, and enhance effective communication in both professional and personal settings.",
+        "coverImage": "surrounded-by-idiots.png"
+    },
+    {
+        "id": "7",
+        "title": "Atomic Habits",
+        "author": "James Clear",
+        "price": "199.00",
+        "stock": "139",
+        "category": "Non-fiction / Self-Help / Personal Development / Productivity",
+        "language": "English",
+        "description": "'Atomic Habits' offers a practical, science-backed framework for mastering tiny changes that yield remarkable results. James Clear explains how small, consistent improvements in habits can compound over time to create significant transformation in any area of life.",
+        "coverImage": "atomic-habits.png"
+    },
+    {
+        "id": "8",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "9",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "10",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "11",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "12",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "13",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "14",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "15",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "16",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "17",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "18",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "19",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "20",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    },
+    {
+        "id": "21w",
+        "title": "",
+        "author": "",
+        "price": "",
+        "stock": "",
+        "category": "",
+        "language": "",
+        "description": "",
+        "coverImage": ""
+    }
+]
