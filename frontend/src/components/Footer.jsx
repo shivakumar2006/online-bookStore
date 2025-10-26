@@ -4,8 +4,10 @@ import { FaInstagram } from "react-icons/fa";
 import { GrYoutube } from "react-icons/gr";
 import { FaLinkedin, FaGithub } from "react-icons/fa6";
 import { CgMail } from "react-icons/cg";
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
+
   return (
     <>
     <div className='w-full h-100 bg-indigo-100 flex flex-row justify-center items-center gap-38'>
@@ -19,18 +21,43 @@ const Footer = () => {
                     BookStore brings your favorite books closer to you, one page at a time.
                 </p>
                 <div className='flex flex-row gap-5'>
-                <button className='w-12 h-12 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200 flex justify-center items-center text-2xl cursor-pointer'>
-                    <FaInstagram />
-                </button>
+                <a 
+                  href="https://www.instagram.com/shivaa.kumar_/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                    <button className='w-12 h-12 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200 flex justify-center items-center text-2xl cursor-pointer'>
+                        <FaInstagram />
+                    </button>
+                </a>
+
+                <a 
+                    href='https://www.youtube.com/@shivakumar2006-j'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                >
                 <button className='w-12 h-12 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200 flex justify-center items-center text-2xl cursor-pointer'>
                     <GrYoutube />
                 </button>
+                </a>
+
+                <a href='https://www.linkedin.com/in/shiva-shiva-8a48002a7/'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                >
                 <button className='w-12 h-12 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200 flex justify-center items-center text-2xl cursor-pointer'>
                     <FaLinkedin />
                 </button>
+                </a>
+
+                <a href='https://github.com/shivakumar2006'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                >
                 <button className='w-12 h-12 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200 flex justify-center items-center text-2xl cursor-pointer'>
                     <FaGithub />
                 </button>
+                </a>
                 </div>
             </div>
             <div className='flex flex-col justify-center items-center'>
