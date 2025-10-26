@@ -2,11 +2,18 @@ import React from 'react';
 import { IoIosBookmark } from "react-icons/io";
 import { FaCartShopping, FaUser } from "react-icons/fa6";
 import { IoHeart } from "react-icons/io5";
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+
+    const Navigate = useNavigate();
+
     return (
         <div className='w-full h-16 bg-indigo-100 flex flex-row justify-between items-center shadow-xl border-b border-b-indigo-200'>
-            <div className='flex flex-row ml-15 cursor-pointer hover:scale-103 transition-transform duration-300'>
+            <div 
+                className='flex flex-row ml-15 cursor-pointer hover:scale-103 transition-transform duration-300'
+                onClick={() => Navigate("/")}    
+            >
                 <p className='text-2xl text-indigo-600 font-bold'>BookStore</p>
                 <IoIosBookmark className='text-2xl mt-1.5 text-indigo-600'/>
             </div>
