@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux';
 import { supabase } from '../supabase';
 import { setUser } from '../redux/api/authSlice';
 
-const login = () => {
+const signup = () => {
 
     const [showPassword, setShowPassword] = useState(false);
     const [password, setPassword] = useState('');
@@ -58,8 +58,8 @@ const login = () => {
                 <p className='text-2xl text-indigo-500 font-bold'>BookStore</p>
                 <IoIosBookmark className='text-2xl mt-1.5 text-indigo-500'/>
             </div>
-            <p className='text-3xl font-bold mt-5'>Welcome back</p>
-            <p className='text-gray-500 mt-2 text-[12px]'>Sign in to your account to continue</p>
+            <p className='text-3xl font-bold mt-5'>Create an account</p>
+            <p className='text-gray-500 mt-2 text-[12px]'>Sign up to get started</p>
             <div className='w-full h-12 mt-5 flex justify-center items-center'>
           <div className='w-120 h-10'>
             <AuthButtonWithProvider
@@ -77,6 +77,11 @@ const login = () => {
         </div>
 
         <form className=' flex flex-col items-center'>
+            <input 
+                type='text'
+                placeholder='your name'
+                className='w-100 h-12 border border-gray-300 pl-3 rounded-xl text-sm placeholder:text-sm'
+            />
             <p className='text-[13px] mt-5 font-bold'>Email</p>
             <input 
                 type='text'
@@ -86,7 +91,7 @@ const login = () => {
 
             <div className='w-100 flex flex-row justify-between items-center'>
                 <p className='text-[13px] mt-8 font-bold'>Password</p>
-                <p className='text-[13px] mt-8 font-light hover:underline text-indigo-500 cursor-pointer'>Forgot Password?</p>
+                {/* <p className='text-[13px] mt-8 font-light hover:underline text-indigo-500 cursor-pointer'>Forgot Password?</p> */}
             </div>
             <div className='relative w-100 h-12'>
           <input
@@ -106,16 +111,16 @@ const login = () => {
         </div>
 
             <button className='w-100 h-12 border mt-8 border-gray-500 pl-3 rounded-xl text-lg bg-indigo-500 hover:bg-indigo-600 transition-colors duration-200 text-white cursor-pointer placeholder:text-sm flex justify-center items-center'>
-                Sign in
+                Sign up
             </button>   
         </form>
         <div className='flex flex-row mt-5 gap-2'>
-        <p className='text-sm'>Don't have an account</p>
+        <p className='text-sm'>Already have an account</p>
         <p 
             className='text-sm text-indigo-500 hover:underline cursor-pointer'
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/login")}
         >
-                Sign up
+                Sign in
         </p>
         </div>
         </div>
@@ -123,4 +128,4 @@ const login = () => {
   )
 }
 
-export default login;
+export default signup;

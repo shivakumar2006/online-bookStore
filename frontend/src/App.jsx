@@ -6,23 +6,30 @@ import BookDetails from './pages/BookDetails';
 import Footer from "./components/Footer";
 import Login from "./pages/login";
 import Profile from "./pages/profile";
-import { Routes, Route } from "react-router-dom";
+import Signup from "./pages/signup";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 const App = () => {
-    return (
-        <>
-            <Navbar />
-           <div className="pt-16"> 
-                <Routes>
-                    <Route path="/" element={<Content />} />
-                    <Route path="/books/:id" element={<BookDetails />} />
-                    <Route path='/login' element={<Login />}/>
-                    <Route path='/profile' element={<Profile />}/>
-                </Routes>
-            </div>
-            <Footer />
-        </>
-    )
-}
+  const location = useLocation();
+
+  // Paths where you don't want Navbar & Footer
+  const hideLayout = ["/login", "/signup"].includes(location.pathname);
+
+  return (
+    <>
+      {!hideLayout && <Navbar />}
+      <div className={`${!hideLayout ? "pt-16" : ""}`}>
+        <Routes>
+          <Route path="/" element={<Content />} />
+          <Route path="/books/:id" element={<BookDetails />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path='/signup' element={<Signup />}/>
+        </Routes>
+      </div>
+      {!hideLayout && <Footer />}
+    </>
+  );
+};
 
 export default App;
