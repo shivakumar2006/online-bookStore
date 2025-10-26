@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Content from "./pages/content";
 import BookDetails from './pages/BookDetails';
 import Footer from "./components/Footer";
+import Login from "./pages/login";
 import { Routes, Route } from "react-router-dom";
 
 const App = () => {
@@ -14,6 +15,7 @@ const App = () => {
                 <Routes>
                     <Route path="/" element={<Content />} />
                     <Route path="/books/:id" element={<BookDetails />} />
+                    <Route path='/login' element={<Login />}/>
                 </Routes>
             </div>
             <Footer />

@@ -1,13 +1,14 @@
 import React from 'react';
 import Banner from '../components/Banner';
 import { useGetBooksQuery, useGetBookByIdQuery } from '../redux/api/bookApi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const content = () => {
 
     const { data: books, isLoading, error } = useGetBooksQuery();
     const { data: bookss } = useGetBookByIdQuery();
 
+    const Navigate = useNavigate();
 
     if (isLoading) {
         return <p>Loading...</p>
@@ -24,7 +25,10 @@ const content = () => {
     <>
         <div className='w-full h-10 bg-indigo-100 flex justify-center items-center flex-row gap-2'>
             <p className='text-[12px] font-extralight'>if you don't have an account </p>
-            <button className='text-[14px] font-extralight hover:underline text-indigo-600 cursor-pointer'>
+            <button 
+                className='text-[14px] font-extralight hover:underline text-indigo-600 cursor-pointer'
+                onClick={() => Navigate("/login")}
+            >
                 login / signup
             </button>
         </div>
