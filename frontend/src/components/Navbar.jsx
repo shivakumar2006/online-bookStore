@@ -9,7 +9,7 @@ const Navbar = () => {
     const Navigate = useNavigate();
 
     return (
-        <div className='w-full h-16 bg-indigo-100 flex flex-row justify-between items-center shadow-xl border-b border-b-indigo-200'>
+        <div className='fixed z-100 w-full h-16 bg-indigo-100 flex flex-row justify-between items-center shadow-xl border-b border-b-indigo-200'>
             <div 
                 className='flex flex-row ml-15 cursor-pointer hover:scale-103 transition-transform duration-300'
                 onClick={() => Navigate("/")}    

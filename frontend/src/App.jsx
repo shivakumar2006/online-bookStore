@@ -10,10 +10,12 @@ const App = () => {
     return (
         <>
             <Navbar />
-            <Routes>
-                <Route path="/" element={<Content />} />
-                <Route path="/books/:id" element={<BookDetails />} />
-            </Routes>
+           <div className="pt-16"> 
+                <Routes>
+                    <Route path="/" element={<Content />} />
+                    <Route path="/books/:id" element={<BookDetails />} />
+                </Routes>
+            </div>
             <Footer />
         </>
     )
