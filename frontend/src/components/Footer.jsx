@@ -4,7 +4,6 @@ import { FaInstagram } from "react-icons/fa";
 import { GrYoutube } from "react-icons/gr";
 import { FaLinkedin, FaGithub } from "react-icons/fa6";
 import { CgMail } from "react-icons/cg";
-import { Link } from 'react-router-dom';
 
 const Footer = () => {
 

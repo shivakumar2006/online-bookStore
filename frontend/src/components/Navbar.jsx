@@ -34,7 +34,10 @@ const Navbar = () => {
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">2</span>
                 </div>
 
-                <div className='w-12 h-12 rounded-full border flex justify-center items-center text-2xl hover:bg-indigo-200 hover:transition-transform duration-500 cursor-pointer'>
+                <div 
+                    className='w-12 h-12 rounded-full border flex justify-center items-center text-2xl hover:bg-indigo-200 hover:transition-transform duration-500 cursor-pointer'
+                    onClick={() => Navigate("/profile")}
+                >
                     <FaUser />
                 </div>
             </div>

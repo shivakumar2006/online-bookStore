@@ -1,11 +1,121 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import {IoIosBookmark} from "react-icons/io";
+import Books from "../assets/login.png";
+import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
+import AuthButtonWithProvider from '../auth/authWithProvider';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { supabase } from '../supabase';
+import { setUser } from '../redux/api/authSlice';
 
 const login = () => {
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [password, setPassword] = useState('');
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const getUser = async () => {
+            const { data: {user}, error } = await supabase.auth.getUser();
+            if (error) {
+                console.log("error getting user: ", error)
+                return 
+            }
+            console.log("supabase user info : ", user);
+            if (user) {
+                dispatch(setUser(user))
+                navigate("/");
+            }
+        }
+
+        getUser();
+    }, [dispatch, navigate])
+
+    // const handleLogin = () => {
+    //   if (!email.trim() || !password.trim()) {
+    //     alert("Please enter both email and password.");
+    //     return;
+    //   }
+    // }
+
   return (
     <div className='w-full min-h-screen flex flex-row'>
-        
+        <div className='w-1/2 h-auto bg-indigo-100 flex flex-col justify-center items-center'>
+            <div className='w-80 h-15 rounded-4xl bg-indigo-500 flex flex-row justify-center items-center'>
+                <p className='text-4xl text-white font-bold'>BookStore</p>
+                <IoIosBookmark className='text-4xl mt-1.5 text-white'/>
+            </div>
+            <p className='text-[16px] px-15 mt-5 font-bold text-center'>Discover and buy your favorite books with ease — your online bookstore built for every reader.</p>
+            <img 
+                src={Books}
+                alt='booksimg'
+                className='w-100 h-100 rounded-3xl shadow-2xl mt-10'
+            />
+        </div>
+        <div className='w-1/2 h-auto flex flex-col justify-center items-center'>
+            <div className='flex flex-row'>
+                <p className='text-2xl text-indigo-500 font-bold'>BookStore</p>
+                <IoIosBookmark className='text-2xl mt-1.5 text-indigo-500'/>
+            </div>
+            <p className='text-3xl font-bold mt-5'>Welcome back</p>
+            <p className='text-gray-500 mt-2 text-[12px]'>Sign in to your account to continue</p>
+            <div className='w-full h-12 mt-5 flex justify-center items-center'>
+          <div className='w-120 h-10'>
+            <AuthButtonWithProvider
+              Icon={FaGoogle}
+              Label={"Sign in with Google"}
+              Provider="google"
+            />
+          </div>
+        </div>
+
+        <div className='w-100 h-10 flex flex-row justify-between items-center mt-4'>
+          <div className='w-35 border-1 border-gray-200'></div>
+          <div className='text-sm text-gray-600'>Or continue with</div>
+          <div className='w-35 border-1 border-gray-200'></div>
+        </div>
+
+        <form className=' flex flex-col items-center'>
+            <p className='text-[13px] mt-5 font-bold'>Email</p>
+            <input 
+                type='text'
+                placeholder='Enter your email'
+                className='w-100 h-12 border border-gray-500 pl-3 rounded-xl text-sm placeholder:text-sm'
+            />
+
+            <div className='w-100 flex flex-row justify-between items-center'>
+                <p className='text-[13px] mt-8 font-bold'>Password</p>
+                <p className='text-[13px] mt-8 font-light hover:underline text-indigo-500 cursor-pointer'>Forgot Password?</p>
+            </div>
+            <div className='relative w-100 h-12'>
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder='......'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className='w-full h-full pl-5 pr-10 placeholder:text-2xl placeholder:text-border-400 border-1 border-gray-300 rounded-xl focus:outline-none focus:ring-0 text-sm'
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600'
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
+        </div>
+
+            <button className='w-100 h-12 border mt-8 border-gray-500 pl-3 rounded-xl text-lg bg-indigo-500 hover:bg-indigo-600 transition-colors duration-200 text-white cursor-pointer placeholder:text-sm flex justify-center items-center'>
+                Sign in
+            </button>   
+        </form>
+        <div className='flex flex-row mt-5 gap-2'>
+        <p className='text-sm'>Don't have an account</p>
+        <p className='text-sm text-indigo-500 hover:underline cursor-pointer'>Sign up</p>
+        </div>
+        </div>
     </div>
   )
 }
 
-export default login
+export default login;
