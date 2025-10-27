@@ -10,12 +10,21 @@ const profile = () => {
   const dispatch = useDispatch();
 
     const handleLogOut = async () => {
-        const { error } = await supabase.auth.signOut();
+        try{
+            const { error } = await supabase.auth.signOut();
         if (error) {
             alert("Error message : ", error.message);
-        } else {
+        } 
             dispatch(setUser(null));
+
+           localStorage.removeItem("jwt_token");
+           localStorage.removeItem("token"); // just in case another key was used
+
+            console.log("logout successful");
             navigate("/login"); // Auth page par redirect
+
+        } catch (error) {
+            console.log("logout err : ", error);
         }
     }
 

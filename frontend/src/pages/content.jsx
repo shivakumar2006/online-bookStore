@@ -2,11 +2,13 @@ import React from 'react';
 import Banner from '../components/Banner';
 import { useGetBooksQuery, useGetBookByIdQuery } from '../redux/api/bookApi';
 import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const content = () => {
 
     const { data: books, isLoading, error } = useGetBooksQuery();
     const { data: bookss } = useGetBookByIdQuery();
+    const user = useSelector((state) => state.auth.user);
 
     const Navigate = useNavigate();
 
@@ -23,15 +25,17 @@ const content = () => {
 
   return (
     <>
-        <div className='w-full h-10 bg-indigo-100 flex justify-center items-center flex-row gap-2'>
-            <p className='text-[12px] font-extralight'>if you don't have an account </p>
-            <button 
-                className='text-[14px] font-extralight hover:underline text-indigo-600 cursor-pointer'
-                onClick={() => Navigate("/login")}
-            >
-                login / signup
-            </button>
-        </div>
+        {!user && (
+            <div className='w-full h-10 bg-indigo-100 flex justify-center items-center flex-row gap-2'>
+                <p className='text-[12px] font-extralight'>if you don't have an account </p>
+                <button 
+                    className='text-[14px] font-extralight hover:underline text-indigo-600 cursor-pointer'
+                    onClick={() => Navigate("/login")}
+                >
+                    login / signup
+                </button>
+            </div>
+        )}
         <div className='shadow-xl'>
             <Banner/>
         </div>

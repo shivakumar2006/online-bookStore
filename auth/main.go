@@ -12,6 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"github.com/rs/cors"
+
 	"github.com/shivakumar2006/online-bookstore/auth/controllers"
 	"github.com/shivakumar2006/online-bookstore/auth/routes"
 )
@@ -41,6 +43,15 @@ func main() {
 	router := mux.NewRouter()
 	routes.AuthRoutes(router)
 
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+	})
+
+	handlers := c.Handler(router)
+
 	log.Println("🚀 auth server running on :8081")
-	http.ListenAndServe(":8081", router)
+	http.ListenAndServe(":8081", handlers)
 }

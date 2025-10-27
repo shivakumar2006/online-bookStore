@@ -8,4 +8,6 @@ import (
 func AuthRoutes(router *mux.Router) {
 	router.HandleFunc("/signup", controllers.Signup).Methods("POST")
 	router.HandleFunc("/login", controllers.Login).Methods("POST")
+	router.HandleFunc("/forgot-password", controllers.ForgotPassword).Methods("POST")
+	router.HandleFunc("/reset-password", controllers.ResetPassword).Methods("POST")
 }

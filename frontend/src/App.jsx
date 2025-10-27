@@ -7,13 +7,15 @@ import Footer from "./components/Footer";
 import Login from "./pages/login";
 import Profile from "./pages/profile";
 import Signup from "./pages/signup";
+import ForgotPassword from './pages/ForgotPassword';
 import { Routes, Route, useLocation } from "react-router-dom";
+import ResetPassword from './pages/ResetPassword';
 
 const App = () => {
   const location = useLocation();
 
   // Paths where you don't want Navbar & Footer
-  const hideLayout = ["/login", "/signup"].includes(location.pathname);
+  const hideLayout = ["/login", "/signup", "/forgot-password", "/reset-password"].includes(location.pathname);
 
   return (
     <>
@@ -25,6 +27,8 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
           <Route path='/signup' element={<Signup />}/>
+          <Route path='/forgot-password' element={<ForgotPassword />}/>
+          <Route path='/reset-password' element={<ResetPassword />}/>
         </Routes>
       </div>
       {!hideLayout && <Footer />}

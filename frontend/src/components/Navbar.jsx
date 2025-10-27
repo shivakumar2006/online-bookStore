@@ -3,10 +3,17 @@ import { IoIosBookmark } from "react-icons/io";
 import { FaCartShopping, FaUser } from "react-icons/fa6";
 import { IoHeart } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Navbar = () => {
 
     const Navigate = useNavigate();
+    const dispatch = useDispatch(); 
+    const user = useSelector((state) => state.auth.user);
+    const profilePicture = user?.user_metadata?.picture || user?.user_metadata?.avatar_url || null;
+
+
+    console.log("user data: ", user);
 
     return (
         <div className='fixed z-100 w-full h-16 bg-indigo-100 flex flex-row justify-between items-center shadow-xl border-b border-b-indigo-200'>
@@ -38,7 +45,20 @@ const Navbar = () => {
                     className='w-12 h-12 rounded-full border flex justify-center items-center text-2xl hover:bg-indigo-200 hover:transition-transform duration-500 cursor-pointer'
                     onClick={() => Navigate("/profile")}
                 >
+                    {user?.user_metadata?.picture ? (
+                    <img
+                      src={user.user_metadata.picture}
+                      alt="User"
+                      className="w-full h-full object-cover rounded-full"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = image; // fallback image
+                      }}
+                    />
+                  ) : (
                     <FaUser />
+                  )}
                 </div>
             </div>
         </div>

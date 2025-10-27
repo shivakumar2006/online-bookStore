@@ -4,8 +4,12 @@ import { FaInstagram } from "react-icons/fa";
 import { GrYoutube } from "react-icons/gr";
 import { FaLinkedin, FaGithub } from "react-icons/fa6";
 import { CgMail } from "react-icons/cg";
+import { useSelector, useDispatch } from 'react-redux';
 
 const Footer = () => {
+
+    const dispatch = useDispatch(); 
+    const user = useSelector((state) => state.auth.user);
 
   return (
     <>
@@ -61,8 +65,9 @@ const Footer = () => {
             </div>
             <div className='flex flex-col justify-center items-center'>
                 <div className='w-90 h-20 bg-white rounded-4xl shadow-2xl font-extrabold text-3xl flex justify-center items-center'>
-                Hi Hello World !
+                  Hii {user?.user_metadata?.name || user?.name ? user?.user_metadata?.name || user?.name : "Hello Guest"}!
                 </div>
+
                 <div className='border-1 w-100 mt-10'></div>
                 <p className='text-[10px] text-gray-600 mt-5'>Copyright © 2025 Shiva Kumar | Shiva Web Studio. All Rights Reserved.</p>
                 <p className='text-[10px] text-gray-600'>Privacy Policy | Terms of use</p>
