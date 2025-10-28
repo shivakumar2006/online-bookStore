@@ -10,6 +10,7 @@ import Signup from "./pages/signup";
 import ForgotPassword from './pages/ForgotPassword';
 import { Routes, Route, useLocation } from "react-router-dom";
 import ResetPassword from './pages/ResetPassword';
+import Cart from './pages/Cart';
 
 const App = () => {
   const location = useLocation();
@@ -29,6 +30,7 @@ const App = () => {
           <Route path='/signup' element={<Signup />}/>
           <Route path='/forgot-password' element={<ForgotPassword />}/>
           <Route path='/reset-password' element={<ResetPassword />}/>
+          <Route path='/cart' element={<Cart />}/>
         </Routes>
       </div>
       {!hideLayout && <Footer />}
