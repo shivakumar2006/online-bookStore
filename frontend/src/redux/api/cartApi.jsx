@@ -1,9 +1,9 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/react/query"; 
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const cartApi = createApi({
     reducerPath: "cartApi",
     baseQuery: fetchBaseQuery({
-        baseUrl: "http://localhost:8082/cart", // call microservice 
+        baseUrl: "http://localhost:8082/cart/:userId", // call microservice 
         prepareHeaders: (headers, { getState }) => {
             const token = getState().auth?.token; 
             if (token) {

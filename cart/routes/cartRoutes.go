@@ -1,15 +1,14 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/shivakumar2006/online-bookstore/cart/controllers"
 )
 
-func CartRoutes(r *mux.Router) {
-	cart := r.PathPrefix("/cart").Subrouter()
-
-	cart.HandleFunc("/{userId}", controllers.GetCart).Methods("GET")                           // Get user's full cart
-	cart.HandleFunc("/{userId}/add", controllers.AddToCart).Methods("POST")                    // Add item to cart
-	cart.HandleFunc("/{userId}/update", controllers.UpdateCartItem).Methods("PUT")             // Update quantity
-	cart.HandleFunc("/{userId}/remove/{bookId}", controllers.RemoveFromCart).Methods("DELETE") // Remove by BookID
+func CartRoutes(r *mux.Router, cc *controllers.CartController) {
+	r.HandleFunc("/cart", cc.AddToCart).Methods(http.MethodPost)
+	r.HandleFunc("/cart", cc.GetUserCart).Methods(http.MethodGet)
+	r.HandleFunc("/cart", cc.RemoveFromCart).Methods(http.MethodDelete)
 }

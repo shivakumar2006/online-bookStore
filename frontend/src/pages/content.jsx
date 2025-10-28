@@ -2,21 +2,48 @@ import React from 'react';
 import Banner from '../components/Banner';
 import { useGetBooksQuery, useGetBookByIdQuery } from '../redux/api/bookApi';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useAddToCartMutation } from '../redux/api/cartApi';
+import { addToCartLocal } from '../redux/api/cartSlice';
 
 const content = () => {
 
     const { data: books, isLoading, error } = useGetBooksQuery();
     const { data: bookss } = useGetBookByIdQuery();
     const user = useSelector((state) => state.auth.user);
-
+    const dispatch = useDispatch();
     const Navigate = useNavigate();
+    const [addToCart, { isLoading: isAdding }] = useAddToCartMutation();
 
     if (isLoading) {
         return <p>Loading...</p>
     }
     if (error) {
         return <p>Error fetching books</p>
+    }
+
+    const handleAddToCart = async (book) => {
+        if (!user) {
+            alert("Please login to add books to your cart");
+            Navigate("/login")
+            return
+        }
+        // updatefrontend 
+        dispatch(addToCartLocal(book));
+
+        // update backend 
+        try {
+            await addToCart({
+                userId: user.id,
+                bookId: book.id, 
+                quantity: 1,
+            }).unwrap();
+
+            alert("Book added to cart successfully");
+        } catch (err) {
+            console.log("Add to cart error", err);
+            alert("Failed to add book to cart");
+        }
     }
     
     console.log("images data : ", books);
@@ -60,8 +87,12 @@ const content = () => {
                             <p className='font-extralight text-2xl mt-5'>₹{book.price}/-</p>
                             <p className='font-extralight text-xl mt-5'><span className='font-light'>In stock:</span> {book.stock} <span className='text-sm'>units</span></p>
                         </div>
-                        <button className='w-90 h-10 mt-3 bg-yellow-500 text-white rounded-3xl cursor-pointer hover:bg-yellow-600 transition-colors duration-500'>
-                                Add to cart
+                        <button 
+                            className='w-90 h-10 mt-3 bg-yellow-500 text-white rounded-3xl cursor-pointer hover:bg-yellow-600 transition-colors duration-500'
+                            onClick={() => handleAddToCart(book)}
+                            disabled={isAdding}
+                        >
+                                {isAdding ? "Adding..." : "Add to cart"}
                         </button>
                     </div>
                     </Link>

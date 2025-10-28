@@ -3,192 +3,171 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/shivakumar2006/online-bookstore/cart/models"
+	"github.com/shivakumar2006/online-bookstore/cart/utils"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var CartCollection *mongo.Collection
-
-func InitCartCollection(c *mongo.Client) {
-	CartCollection = c.Database("bookstore").Collection("carts")
+type CartController struct {
+	CartCollection *mongo.Collection
+	BookServiceURL string
 }
 
-func GetCart(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	userID := r.URL.Query().Get("user_id") // can also come from jwt also
-	if userID == "" {
-		http.Error(w, "user id required", http.StatusBadRequest)
-		return
-	}
-
-	objID, err := primitive.ObjectIDFromHex(userID)
-	if err != nil {
-		http.Error(w, "invalid user ID", http.StatusBadRequest)
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	var cart models.Cart
-	err = CartCollection.FindOne(ctx, bson.M{"user_id": objID}).Decode(&cart)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			json.NewEncoder(w).Encode(models.Cart{UserID: objID, Items: []models.CartItems{}})
-			return
-		}
-		http.Error(w, "Error fetching cart", http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(cart)
+type Book struct {
+	ID          string  `json:"id"`
+	Title       string  `json:"title"`
+	Author      string  `json:"author"`
+	Price       float64 `json:"price"`
+	CoverImage  string  `json:"coverImage"`
+	Description string  `json:"description"`
 }
 
-func AddToCart(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+func (cc *CartController) AddToCart(w http.ResponseWriter, r *http.Request) {
+	userId, err := utils.ExtractUserIDFromJWT(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
 
-	var req struct {
-		UserID   string `json:"user_id"`
-		BookID   string `json:"book_id"`
+	var payload struct {
+		BookID   string `json:"bookId"`
 		Quantity int    `json:"quantity"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	userObjID, _ := primitive.ObjectIDFromHex(req.UserID)
-	bookObjID, _ := primitive.ObjectIDFromHex(req.BookID)
+	if payload.Quantity <= 0 {
+		payload.Quantity = 1
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// check if book is already in cart
+	filter := bson.M{"user_id": userId, "book_id": payload.BookID}
+	update := bson.M{"$inc": bson.M{"quantity": payload.Quantity}}
+	opts := options.Update().SetUpsert(true)
+
+	_, err = cc.CartCollection.UpdateOne(ctx, filter, update, opts)
+	if err != nil {
+		http.Error(w, "Failed to add to cart", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "book added to cart"})
+}
+
+func (cc *CartController) GetUserCart(w http.ResponseWriter, r *http.Request) {
+	userId, err := utils.ExtractUserIDFromJWT(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	var cart models.Cart
-	err := CartCollection.FindOne(ctx, bson.M{"user_id": userObjID}).Decode(&cart)
+	cursor, err := cc.CartCollection.Find(ctx, bson.M{"user_id": userId})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	if err == mongo.ErrNoDocuments {
-		newCart := models.Cart{
-			ID:     primitive.NewObjectID(),
-			UserID: userObjID,
-			Items:  []models.CartItems{{BookID: bookObjID, Quantity: req.Quantity}},
-		}
-		_, err := CartCollection.InsertOne(ctx, newCart)
+	var cartItems []models.CartItem
+	if err = cursor.All(ctx, &cartItems); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// type Book struct {
+	// 	ID          string  `json:"id"`
+	// 	Title       string  `json:"title"`
+	// 	Author      string  `json:"author"`
+	// 	Price       float64 `json:"price"`
+	// 	CoverImage  string  `json:"coverImage"`
+	// 	Description string  `json:"description"`
+	// }
+
+	type FullCartItem struct {
+		ID       primitive.ObjectID `json:"id"`
+		BookID   string             `jssn:"bookId"`
+		Quantity int                `json:"quantity"`
+		Book     Book               `json:"book"`
+	}
+
+	var fullCart []FullCartItem
+
+	for _, item := range cartItems {
+		book, err := fetchBookFromService(cc.BookServiceURL, item.BookID)
 		if err != nil {
-			http.Error(w, "failed to create cart", http.StatusInternalServerError)
-			return
+			fmt.Println("Error fetching books", err)
+			continue
 		}
-		json.NewEncoder(w).Encode(newCart)
-		return
+		fullCart = append(fullCart, FullCartItem{
+			ID:       item.ID,
+			BookID:   item.BookID,
+			Quantity: item.Quantity,
+			Book:     book,
+		})
 	}
 
-	// if exists, update
-	updated := false
-	for i, item := range cart.Items {
-		if item.BookID == bookObjID {
-			cart.Items[i].Quantity += req.Quantity
-			updated = true
-			break
-		}
-	}
-	if !updated {
-		cart.Items = append(cart.Items, models.CartItems{BookID: bookObjID, Quantity: req.Quantity})
-	}
-
-	_, err = CartCollection.UpdateOne(ctx, bson.M{"user_id": userObjID}, bson.M{"$set": bson.M{"items": cart.Items}})
-	if err != nil {
-		http.Error(w, "failed to update cart", http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(cart)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(fullCart)
 }
 
-func RemoveFromCart(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	var req struct {
-		UserID string `json:"user_id"`
-		BookID string `json:"book_id"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
+func (cc *CartController) RemoveFromCart(w http.ResponseWriter, r *http.Request) {
+	userId, err := utils.ExtractUserIDFromJWT(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	userObjID, _ := primitive.ObjectIDFromHex(req.UserID)
-	bookObjID, _ := primitive.ObjectIDFromHex(req.BookID)
+	bookId := r.URL.Query().Get("bookId")
+	if bookId == "" {
+		http.Error(w, "Missing bookId", http.StatusBadRequest)
+		return
+	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var cart models.Cart
-	err := CartCollection.FindOne(ctx, bson.M{"user_id": userObjID}).Decode(&cart)
+	_, err = cc.CartCollection.DeleteOne(ctx, bson.M{"user_id": userId, "book_id": bookId})
 	if err != nil {
-		http.Error(w, "cart not foound", http.StatusNotFound)
+		http.Error(w, "Failed to remove book", http.StatusInternalServerError)
 		return
 	}
 
-	newItems := []models.CartItems{}
-	for _, item := range cart.Items {
-		if item.BookID != bookObjID {
-			newItems = append(newItems, item)
-		}
-	}
-
-	cart.Items = newItems
-	_, err = CartCollection.UpdateOne(ctx, bson.M{"user_id": userObjID}, bson.M{"$set": bson.M{"items": cart.Items}})
-	if err != nil {
-		http.Error(w, "Failed to remove ites", http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(cart)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "book removed from cart"})
 }
 
-func UpdateCartItem(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	var req struct {
-		UserID   string `json:"user_id"`
-		BookID   string `json:"book_id"`
-		Quantity int    `json:"quantity"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		return
-	}
-
-	userObjID, _ := primitive.ObjectIDFromHex(req.UserID)
-	bookObjID, _ := primitive.ObjectIDFromHex(req.BookID)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	var cart models.Cart
-	err := CartCollection.FindOne(ctx, bson.M{"user_id": userObjID}).Decode(&cart)
+func fetchBookFromService(baseURL, bookID string) (Book, error) {
+	resp, err := http.Get(fmt.Sprintf("%s/books/%s", baseURL, bookID))
 	if err != nil {
-		http.Error(w, "Cart not found", http.StatusInternalServerError)
-		return
+		return Book{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return Book{}, fmt.Errorf("book service returned %d", resp.StatusCode)
 	}
 
-	for i, item := range cart.Items {
-		if item.BookID == bookObjID {
-			cart.Items[i].Quantity = req.Quantity
-			break
-		}
+	var book Book
+	if err := json.NewDecoder(resp.Body).Decode(&book); err != nil {
+		return Book{}, err
 	}
 
-	_, err = CartCollection.UpdateOne(ctx, bson.M{"user_id": userObjID}, bson.M{"$set": bson.M{"items": cart.Items}})
-	if err != nil {
-		http.Error(w, "Failed to update item", http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(cart)
+	return book, nil
 }
