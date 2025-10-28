@@ -1,19 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { IoIosBookmark } from "react-icons/io";
 import { FaCartShopping, FaUser } from "react-icons/fa6";
 import { IoHeart } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import LoginPopup from './LoginPopup';
 
 const Navbar = () => {
 
     const Navigate = useNavigate();
     const dispatch = useDispatch(); 
+    const [ showPopup, setShowPopup ] = useState(false);
     const user = useSelector((state) => state.auth.user);
     const profilePicture = user?.user_metadata?.picture || user?.user_metadata?.avatar_url || null;
 
-
     console.log("user data: ", user);
+
+    const handleProfileClick = () => {
+    if (!user) {
+      setShowPopup(true); // show popup if not logged in
+    } else {
+      Navigate("/profile"); // if logged in, go to profile
+    }
+  };
 
     return (
         <div className='fixed z-100 w-full h-16 bg-indigo-100 flex flex-row justify-between items-center shadow-xl border-b border-b-indigo-200'>
@@ -43,7 +52,7 @@ const Navbar = () => {
 
                 <div 
                     className='w-12 h-12 rounded-full border flex justify-center items-center text-2xl hover:bg-indigo-200 hover:transition-transform duration-500 cursor-pointer'
-                    onClick={() => Navigate("/profile")}
+                    onClick={handleProfileClick}
                 >
                     {user?.user_metadata?.picture ? (
                     <img
@@ -61,6 +70,7 @@ const Navbar = () => {
                   )}
                 </div>
             </div>
+            {showPopup && <LoginPopup onClose={() => setShowPopup(false)} />}
         </div>
     )
 }

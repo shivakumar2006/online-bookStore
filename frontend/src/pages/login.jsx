@@ -142,6 +142,16 @@ const Login = () => {
                         Sign up
                     </p>
                 </div>
+
+                <div className='flex flex-row mt-5 gap-2'>
+                    <p className='text-sm'>if you don't want to login</p>
+                    <p 
+                        className='text-sm text-indigo-500 hover:underline cursor-pointer'
+                        onClick={() => navigate("/")}
+                    >
+                        Back to home
+                    </p>
+                </div>
             </div>
         </div>
     )
