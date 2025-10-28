@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/shivakumar2006/online-bookstore/controllers"
+	"github.com/shivakumar2006/online-bookstore/cart/controllers"
 )
 
 func CartRoutes(r *mux.Router) {
