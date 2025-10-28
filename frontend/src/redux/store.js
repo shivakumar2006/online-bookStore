@@ -2,17 +2,20 @@ import { configureStore } from "@reduxjs/toolkit";
 import { bookApi } from "./api/bookApi";
 import { jwtAuthApi } from "./api/jwtAuthSlice";
 import authReducer from "./api/authSlice";
+import { cartApi } from "./api/cartApi";
 
 export const store = configureStore({
     reducer: {
+        auth: authReducer,
         [bookApi.reducerPath]: bookApi.reducer,
         [jwtAuthApi.reducerPath]:jwtAuthApi.reducer,
-        auth: authReducer,
+        [cartApi.reducerPath]: cartApi.reducer,
     },
     middleware: (getDefaultMiddleware) => 
         getDefaultMiddleware()
             .concat(bookApi.middleware)
-            .concat(jwtAuthApi.middleware),
+            .concat(jwtAuthApi.middleware)
+            .concat(cartApi.middleware),
 })
 
 export default store;

@@ -6,8 +6,10 @@ import (
 )
 
 func CartRoutes(r *mux.Router) {
-	r.HandleFunc("/cart", controllers.GetCart).Methods("GET")
-	r.HandleFunc("/cart/add", controllers.AddToCart).Methods("POST")
-	r.HandleFunc("/cart/remove", controllers.RemoveFromCart).Methods("DELETE")
-	r.HandleFunc("/cart/updatte", controllers.UpdateCartItem).Methods("PUT")
+	cart := r.PathPrefix("/cart").Subrouter()
+
+	cart.HandleFunc("/{userId}", controllers.GetCart).Methods("GET")                           // Get user's full cart
+	cart.HandleFunc("/{userId}/add", controllers.AddToCart).Methods("POST")                    // Add item to cart
+	cart.HandleFunc("/{userId}/update", controllers.UpdateCartItem).Methods("PUT")             // Update quantity
+	cart.HandleFunc("/{userId}/remove/{bookId}", controllers.RemoveFromCart).Methods("DELETE") // Remove by BookID
 }
