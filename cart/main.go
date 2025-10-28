@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
-	"time"
+	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"github.com/shivakumar2006/online-bookstore/cart/controllers"
 	"github.com/shivakumar2006/online-bookstore/cart/routes"
@@ -16,31 +16,36 @@ import (
 )
 
 func main() {
-	// connect mongodb
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	godotenv.Load()
 
-	client, err := mongo.Connect(ctx, clientOptions)
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	controllers.CartCollection = client.Database("bookstore").Collection("cart")
+	cartCollection := client.Database("bookstore").Collection("cart")
+
+	BookServiceURL := os.Getenv("BOOK_SERVICE_URL")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8082"
+	}
+
+	cc := &controllers.CartController{
+		CartCollection: cartCollection,
+		BookServiceURL: BookServiceURL,
+	}
 
 	r := mux.NewRouter()
-	routes.CartRoutes(r)
+	routes.CartRoutes(r, cc)
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"}, // your frontend origin
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedMethods:   []string{"GET", "POST", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
 	})
 
-	// Apply CORS middleware
-	handler := c.Handler(r)
-
-	fmt.Println("Cart microservice are running on port 8082")
-	http.ListenAndServe(":8082", handler)
+	log.Printf("🚀 Cart Service running on :%s", port)
+	http.ListenAndServe(":"+port, c.Handler(r))
 }
