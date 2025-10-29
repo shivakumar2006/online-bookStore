@@ -1,4 +1,4 @@
-import React from 'react'; 
+import React, { useEffect } from 'react'; 
 import "./App.css";
 import Navbar from './components/Navbar';
 import Content from "./pages/content";
@@ -11,8 +11,32 @@ import ForgotPassword from './pages/ForgotPassword';
 import { Routes, Route, useLocation } from "react-router-dom";
 import ResetPassword from './pages/ResetPassword';
 import Cart from './pages/Cart';
+import { supabase } from './supabase';
+import { useDispatch } from 'react-redux';
+import { setUser } from './redux/api/authSlice';
 
 const App = () => {
+
+    const dispatch = useDispatch();
+
+  useEffect(() => {
+    const getSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session) {
+        dispatch(setUser(data.session)); // ✅ save session + token
+      }
+    };
+
+    getSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      dispatch(setUser(session)); // ✅ update Redux whenever auth changes
+    });
+
+    return () => listener.subscription.unsubscribe();
+  }, [dispatch]);
+
+
   const location = useLocation();
 
   // Paths where you don't want Navbar & Footer

@@ -1,7 +1,11 @@
 import React from 'react';
 import { supabase } from '../supabase';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../redux/api/authSlice';
 
 const authWithProvider = ({ Icon, Label, Provider}) => {
+
+    const dispatch = useDispatch();
 
     const handleLogin = async () => {
         const { error } = await supabase.auth.signInWithOAuth({
@@ -14,7 +18,18 @@ const authWithProvider = ({ Icon, Label, Provider}) => {
             alert("Authentication failed!")
             console.log("errors : ", error)
         }
+
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.access_token) {
+                dispatch(setUser({
+                    email: session.user.email,
+                    name: session.user.user_metadata.name,
+                    token: session.access_token,
+                }))
+            }
+        })
     }
+
 
   return (
     <div>

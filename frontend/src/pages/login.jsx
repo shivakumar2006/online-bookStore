@@ -19,39 +19,45 @@ const Login = () => {
     const navigate = useNavigate();
 
     // Check if OAuth user is already logged in
-    useEffect(() => {
-        const checkOAuthUser = async () => {
-            const { data: { user }, error } = await supabase.auth.getUser();
-            if (error) return;
-            if (user) {
-                dispatch(setUser(user));
-                navigate("/"); // redirect OAuth user directly
-            }
-        };
-        checkOAuthUser();
-    }, [dispatch, navigate]);
+   useEffect(() => {
+  const checkOAuthUser = async () => {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) return;
+
+    if (session?.user) {
+      dispatch(setUser({
+        name: session.user.user_metadata.full_name,
+        email: session.user.email,
+        token: session.access_token
+      }));
+      navigate("/");
+    }
+  };
+  checkOAuthUser();
+}, [dispatch, navigate]);
 
     const handleLogin = async (e) => {
-        e.preventDefault();
-        if (!email.trim() || !password.trim()) {
-            alert("Please enter both email and password.");
-            return;
-        }
-
-        try {
-            const res = await loginMutation({ email, password }).unwrap();
-            console.log("JWT login response: ", res);
-
-            // Save JWT token and user info
-            localStorage.setItem("token", res.token);
-            dispatch(setUser(res.user));
-
-            navigate("/"); // redirect to main page
-        } catch (error) {
-            console.log("Login error: ", error);
-            alert(error?.data?.message || "Login failed");
-        }
+      e.preventDefault();
+      if (!email.trim() || !password.trim()) {
+        alert("Please enter both email and password.");
+        return;
+      }
+  
+      try {
+        const res = await loginMutation({ email, password }).unwrap();
+        console.log("JWT login response: ", res);
+    
+        // ✅ Save both token & user in Redux
+        dispatch(setUser(res));
+        localStorage.setItem("token", res.token);
+    
+        navigate("/");
+      } catch (error) {
+        console.log("Login error: ", error);
+        alert(error?.data?.message || "Login failed");
+      }
     };
+
 
     return (
         <div className='w-full min-h-screen flex flex-row'>

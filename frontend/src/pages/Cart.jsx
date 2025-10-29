@@ -1,18 +1,25 @@
-import React from 'react';
-import { useGetCartQuery, useRemoveFromCartMutation } from '../redux/api/cartApi';
+import React from "react";
+import {
+  useGetCartQuery,
+  useRemoveFromCartMutation,
+} from "../redux/api/cartApi";
 
 const Cart = () => {
+  const { data: cart, isLoading, isError } = useGetCartQuery();
+  const [removeFromCart] = useRemoveFromCartMutation();
 
-    const { data: cart, isLoading, isError } = useGetCartQuery();
-    const [removeFromCart] = useRemoveFromCartMutation();
-
-    if (isLoading) return <p>Loading...</p>
-    if (isError) return <p>Error...</p>
-
-    const handleRemove = async(bookId) => {
-        await removeFromCart(bookId)
-        alert("Removed from cart");
+  const handleRemove = async (bookId) => {
+    try {
+      await removeFromCart(bookId).unwrap();
+      alert("Removed from cart!");
+    } catch (err) {
+      console.error("Error removing item:", err);
+      alert("Failed to remove item.");
     }
+  };
+
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error loading cart.</p>;
 
   return (
     <div className="w-full min-h-screen bg-gray-100 flex flex-col items-center py-10">
@@ -29,6 +36,10 @@ const Cart = () => {
               key={item.id}
               className="flex justify-between items-center border-b pb-2"
             >
+
+                <p className="font-medium">Book ID: {item.bookId}</p>
+<p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+
               <div>
                 <p className="font-medium">{item.title}</p>
                 <p className="text-sm text-gray-500">{item.author}</p>

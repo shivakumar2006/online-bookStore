@@ -1,53 +1,59 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const cartApi = createApi({
-    reducerPath: "cartApi",
-    baseQuery: fetchBaseQuery({
-        baseUrl: "http://localhost:8082/cart/:userId", // call microservice 
-        prepareHeaders: (headers, { getState }) => {
-            const token = getState().auth?.token; 
-            if (token) {
-                headers.set("Authorization", `Bearer ${token}`)
-            }
-            headers.set("Content-Type", "application/json")
-            return headers; 
-        }
+  reducerPath: "cartApi",
+  baseQuery: fetchBaseQuery({
+    baseUrl: "http://localhost:8082", // ✅ fixed
+    prepareHeaders: (headers, { getState }) => {
+      const state = getState();
+      const token =
+        state.auth?.token ||
+        state.auth?.user?.access_token ||
+        state.auth?.session?.access_token;
+
+        console.log("🧠 Token from Redux:", token);
+
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+ // ✅ only token (no "Bearer") — because Go expects raw JWT
+      }
+
+      headers.set("Content-Type", "application/json");
+      return headers;
+    },
+  }),
+  tagTypes: ["Cart"],
+  endpoints: (builder) => ({
+    // 🛒 Fetch user cart
+    getCart: builder.query({
+      query: () => "/cart", // ✅ correct route
+      providesTags: ["Cart"],
     }),
 
-    tagTypes: ["Cart"],
+    // ➕ Add to cart
+    addToCart: builder.mutation({
+      query: ({ bookId, quantity }) => ({
+        url: "/cart/add",
+        method: "POST",
+        body: { bookId, quantity },
+      }),
+      invalidatesTags: ["Cart"], // ✅ should invalidate not provide
+    }),
 
-    endpoints: (builder) => ({
-        getCart: builder.query({
-            query: (userId) => `/${userId}`,
-            providesTags: ["Cart"],
-        }),
+    // ❌ Remove from cart
+    removeFromCart: builder.mutation({
+      query: (bookId) => ({
+        url: "/cart/remove",
+        method: "DELETE",
+        body: { book_id: bookId }, // ✅ Go backend expects this format
+      }),
+      invalidatesTags: ["Cart"],
+    }),
+  }),
+});
 
-        addToCart: builder.mutation({
-            query: ({ userId, bookId, quantity }) => ({
-                url: `/${userId}/add`,
-                method: "POST",
-                body: { book_id: bookId, quantity },
-            }),
-            invalidatesTags: ["Cart"],
-        }),
-
-        updateCartItems: builder.mutation({
-            query: ({ userId, bookId, quantity }) => ({
-                url: `/${userId}/update`,
-                method: "PUT",
-                body: { book_id: bookId, quantity },
-            }),
-            invalidatesTags: ["Cart"],
-        }),
-
-        removeFromCart: builder.mutation({
-            query: ({ userId, bookId }) => ({
-                url: `/${userId}/remove/${bookId}`,
-                method: "DELETE",
-            }),
-            invalidatesTags: ["Cart"],
-        })
-    })
-})
-
-export const { useGetCartQuery, useAddToCartMutation, useUpdateCartItemMutation, useRemoveFromCartMutation } = cartApi;
+export const {
+  useGetCartQuery,
+  useAddToCartMutation,
+  useRemoveFromCartMutation,
+} = cartApi;
