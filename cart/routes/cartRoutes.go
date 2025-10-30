@@ -11,4 +11,6 @@ func CartRoutes(r *mux.Router, cc *controllers.CartController) {
 	r.HandleFunc("/cart/add", cc.AddToCart).Methods(http.MethodPost)
 	r.HandleFunc("/cart", cc.GetUserCart).Methods(http.MethodGet)
 	r.HandleFunc("/cart/remove", cc.RemoveFromCart).Methods(http.MethodDelete)
+	r.HandleFunc("/cart/increase", cc.IncreaseQuantity).Methods(http.MethodPatch)
+	r.HandleFunc("/cart/decrease", cc.DecreaseQuantity).Methods(http.MethodPatch)
 }

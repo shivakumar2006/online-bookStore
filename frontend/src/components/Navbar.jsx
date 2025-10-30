@@ -5,6 +5,7 @@ import { IoHeart } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import LoginPopup from './LoginPopup';
+import { useGetCartQuery } from '../redux/api/cartApi';
 
 const Navbar = () => {
 
@@ -12,9 +13,13 @@ const Navbar = () => {
     const dispatch = useDispatch(); 
     const [ showPopup, setShowPopup ] = useState(false);
     const user = useSelector((state) => state.auth.user);
+    const { data: cart, isLoading, isError } = useGetCartQuery();
     const profilePicture = user?.user_metadata?.picture || user?.user_metadata?.avatar_url || null;
 
     console.log("user data: ", user);
+
+    if (isLoading) return <p>Loading...</p>
+    if (isError) return <p>Error fetching data...</p>
 
     const handleProfileClick = () => {
       if (!user) {
@@ -51,7 +56,7 @@ const Navbar = () => {
 
                 <div onClick={handleCartClick} className='relative w-10 h-10 rounded-full flex justify-center items-center hover:bg-indigo-200 hover:transition-transform duration-500 cursor-pointer'>
                     <FaCartShopping className='text-2xl'/>
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">2</span>
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">{cart?.items?.length || 0}</span>
                 </div>
                 <div className='relative w-10 h-10 rounded-full flex justify-center items-center hover:bg-indigo-200 hover:transition-transform duration-500 cursor-pointer'>
                     <IoHeart className='text-2xl'/>

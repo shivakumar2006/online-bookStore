@@ -122,10 +122,12 @@ func (cc *CartController) GetUserCart(w http.ResponseWriter, r *http.Request) {
 
 	type DetailedCartItem struct {
 		models.CartItem
-		Book Book `json:"book"`
+		Book      Book    `json:"book"`
+		ItemTotal float64 `json:"itemTotal"`
 	}
 
 	var detailedCart []DetailedCartItem
+	var cartTotal float64
 
 	for _, item := range cartItems {
 		resp, err := http.Get(fmt.Sprintf("%s/books/%s", cc.BookServiceURL, item.BookID))
@@ -135,21 +137,82 @@ func (cc *CartController) GetUserCart(w http.ResponseWriter, r *http.Request) {
 		defer resp.Body.Close()
 
 		var book Book
-
 		if err := json.NewDecoder(resp.Body).Decode(&book); err != nil {
 			continue
 		}
 
+		itemTotal := book.Price * float64(item.Quantity)
+		cartTotal += itemTotal
+
 		detailedCart = append(detailedCart, DetailedCartItem{
-			CartItem: item,
-			Book:     book,
+			CartItem:  item,
+			Book:      book,
+			ItemTotal: itemTotal,
 		})
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"items": detailedCart,
+		"items":     detailedCart,
+		"cartTotal": cartTotal,
 	})
+}
+
+func (cc *CartController) IncreaseQuantity(w http.ResponseWriter, r *http.Request) {
+	cc.UpdateQuantity(w, r, 1)
+}
+
+func (cc *CartController) DecreaseQuantity(w http.ResponseWriter, r *http.Request) {
+	cc.UpdateQuantity(w, r, -1)
+}
+
+func (cc *CartController) UpdateQuantity(w http.ResponseWriter, r *http.Request, change int) {
+	userId, err := cc.VerifyToken(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	bookId := r.URL.Query().Get("bookId")
+	if bookId == "" {
+		http.Error(w, "missing bookid", http.StatusBadRequest)
+		return
+	}
+
+	bookObjID, err := primitive.ObjectIDFromHex(bookId)
+	if err != nil {
+		http.Error(w, "invalid book id", http.StatusInternalServerError)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// fethc current quantity
+	var item models.CartItem
+	err = cc.CartCollection.FindOne(ctx, bson.M{"userId": userId, "bookId": bookId}).Decode(&item)
+	if err != nil {
+		http.Error(w, "Item not found", http.StatusNotFound)
+		return
+	}
+
+	newQuantity := item.Quantity + change
+	if newQuantity <= 0 {
+		cc.CartCollection.DeleteOne(ctx, bson.M{"userId": userId, "bookId": bookObjID})
+		json.NewEncoder(w).Encode(map[string]string{"message": "items removed from cart"})
+		return
+	}
+
+	_, err = cc.CartCollection.UpdateOne(ctx,
+		bson.M{"userId": userId, "bookId": bookId},
+		bson.M{"$set": bson.M{"quantity": newQuantity}},
+	)
+	if err != nil {
+		http.Error(w, "failed to update quantity", http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{"message": "Quantity updated"})
 }
 
 func (cc *CartController) RemoveFromCart(w http.ResponseWriter, r *http.Request) {
