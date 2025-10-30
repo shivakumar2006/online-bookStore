@@ -3,9 +3,12 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/shivakumar2006/online-bookstore/wishlist/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,6 +16,29 @@ import (
 )
 
 var WishlistCollection *mongo.Collection
+
+func VerifyToken(r *http.Request) (string, error) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return "", fmt.Errorf("missing authorization header")
+	}
+
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	claims := jwt.MapClaims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte JwtKey, nil
+	})
+	if err != nil || !token.Valid {
+		return "", fmt.Errorf("invalid token: %v", err)
+	}
+
+	userID, ok := claims["userId"].(string)
+	if !ok {
+		return "", fmt.Errorf("userId missing or invalid type")
+	}
+
+	return userID, nil
+}
 
 func AddToWishlist(w http.ResponseWriter, r *http.Request) {
 	var item models.WishlistItem

@@ -3,9 +3,11 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useResetPasswordMutation } from "../redux/api/jwtAuthSlice";
 import { Link } from "react-router-dom";
+import {FaEye, FaEyeSlash } from "react-icons/fa";
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const location = useLocation();
   const token = new URLSearchParams(location.search).get("token");
@@ -26,13 +28,22 @@ const ResetPassword = () => {
     <div className="w-full bg-gray-100 min-h-screen flex flex-col justify-center items-center">
       <h2 className="text-3xl font-bold">Reset Password</h2>
       <form onSubmit={handleSubmit} className="flex flex-col items-center gap-5">
-        <input
-          type="password"
-          placeholder="Enter new password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          className="w-80 h-10 mt-5 border bg-white border-gray-500 rounded-xl pl-4"
-        />
+         <div className='relative w-100 h-12'>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder='Enter new password'
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    className='w-full h-full pl-5 pr-10 placeholder:text-sm placeholder:border-gray-400 border border-gray-300 rounded-xl focus:outline-none focus:ring-0 text-sm'
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600'
+                                >
+                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                </button>
+                            </div>
         <button type="submit" className="w-80 h-10 bg-black rounded-2xl text-white text-xl cursor-pointer">Reset</button>
       </form>
       {message && <p>{message}</p>}

@@ -8,7 +8,7 @@ const LoginPopup = ({ onClose }) => {
           Login Required
         </h2>
         <p className="text-gray-600 mb-5">
-          You need to login first to access your profile.
+          You need to login first to access your profile, cart and wishlist.
         </p>
         <div className="flex justify-center gap-4">
           <button

@@ -15,7 +15,6 @@ export const cartApi = createApi({
 
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
- // ✅ only token (no "Bearer") — because Go expects raw JWT
       }
 
       headers.set("Content-Type", "application/json");
@@ -43,12 +42,12 @@ export const cartApi = createApi({
     // ❌ Remove from cart
     removeFromCart: builder.mutation({
       query: (bookId) => ({
-        url: "/cart/remove",
+        url: `/cart/remove?bookId=${bookId}`, // ✅ must be query param
         method: "DELETE",
-        body: { book_id: bookId }, // ✅ Go backend expects this format
       }),
       invalidatesTags: ["Cart"],
     }),
+
   }),
 });
 

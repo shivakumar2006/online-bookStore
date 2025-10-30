@@ -17,20 +17,20 @@ const Navbar = () => {
     console.log("user data: ", user);
 
     const handleProfileClick = () => {
-    if (!user) {
-      setShowPopup(true); // show popup if not logged in
-    } else {
-      Navigate("/profile"); // if logged in, go to profile
-    }
+      if (!user) {
+        setShowPopup(true); // show popup if not logged in
+      } else {
+        Navigate("/profile"); // if logged in, go to profile
+      }
+    };
 
-    // const handleCartClick = () => {
-    //     if (!user) {
-    //         setShowPopup(true);
-    //     } else {
-    //         Navigate("/cart")
-    //     }
-    // }
-  };
+    const handleCartClick = () => {
+          if (!user) {
+              setShowPopup(true);
+          } else {
+              Navigate("/cart")
+          }
+    }
 
     return (
         <div className='fixed z-100 w-full h-16 bg-indigo-100 flex flex-row justify-between items-center shadow-xl border-b border-b-indigo-200'>
@@ -49,7 +49,7 @@ const Navbar = () => {
                     className='w-70 h-8 pl-4 bg-white pb-0.5 text-[12px] placeholder:text-[12px] rounded-4xl'
                 />
 
-                <div onClick={() => Navigate("/cart")} className='relative w-10 h-10 rounded-full flex justify-center items-center hover:bg-indigo-200 hover:transition-transform duration-500 cursor-pointer'>
+                <div onClick={handleCartClick} className='relative w-10 h-10 rounded-full flex justify-center items-center hover:bg-indigo-200 hover:transition-transform duration-500 cursor-pointer'>
                     <FaCartShopping className='text-2xl'/>
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">2</span>
                 </div>

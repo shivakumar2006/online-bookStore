@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../redux/api/authSlice';
 import { useSelector } from 'react-redux';
+import { cartApi } from "../redux/api/cartApi";
+
 
 const profile = () => {
 
@@ -18,6 +20,8 @@ const profile = () => {
             alert("Error message : ", error.message);
         } 
             dispatch(setUser(null));
+
+            dispatch(cartApi.util.resetApiState());
 
            localStorage.removeItem("jwt_token");
            localStorage.removeItem("token"); // just in case another key was used
