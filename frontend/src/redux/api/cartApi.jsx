@@ -55,7 +55,7 @@ export const cartApi = createApi({
 
     decreaseQuantity: builder.mutation({
         query: (bookId) => ({
-            url: `/cart/decrease?.bookId=${bookId}`,
+            url: `/cart/decrease?bookId=${bookId}`,
             method: "PATCH",
         }),
         invalidatesTags: ["Cart"]

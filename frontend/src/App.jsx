@@ -14,6 +14,7 @@ import Cart from './pages/Cart';
 import { supabase } from './supabase';
 import { useDispatch } from 'react-redux';
 import { setUser } from './redux/api/authSlice';
+import Wishlist from './pages/Wishlist';
 
 const App = () => {
 
@@ -55,6 +56,7 @@ const App = () => {
           <Route path='/forgot-password' element={<ForgotPassword />}/>
           <Route path='/reset-password' element={<ResetPassword />}/>
           <Route path='/cart' element={<Cart />}/>
+          <Route path='/wishlist' element={<Wishlist />}/>
         </Routes>
       </div>
       {!hideLayout && <Footer />}

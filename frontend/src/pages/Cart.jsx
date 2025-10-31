@@ -25,11 +25,19 @@ const Cart = () => {
   };
 
   const handleIncrease = async (bookId) => {
-    await increaseQuantity(bookId);
+    try {
+        await increaseQuantity(bookId).unwrap();
+    } catch (err) {
+        console.error("error increasing quantity : ", err);
+    }
   }
 
   const handleDecrease = async (bookId) => {
-    await decreaseQuantity(bookId);
+    try {
+        await decreaseQuantity(bookId).unwrap();
+    } catch (err) {
+        console.error("error decreasing quantity : ", err);
+    }
   }
 
   if (isLoading) return <p>Loading...</p>;
@@ -38,12 +46,14 @@ const Cart = () => {
   console.log("cart data: ", cart);
 
   return (
-    <div className="w-full min-h-screen bg-gray-100 flex flex-col items-center py-10">
-      <div className="w-[800px] shadow-2xl bg-indigo-500 text-white rounded-t-xl flex justify-center items-center py-3">
-        <p className="text-xl font-semibold">
-          Cart ({cart?.items?.length || 0})
-        </p>
-      </div>
+    <>
+    <div className="w-full min-h-screen bg-gray-100 flex flex-row items-center py-10 gap-5">
+        <div className="w-200 ml-30 flex flex-col justify-center items-center">
+            <div className="w-[800px] shadow-2xl bg-indigo-500 text-white rounded-t-xl flex justify-center items-center py-3">
+              <p className="text-xl font-semibold">
+                Cart ({cart?.items?.length || 0})
+              </p>
+            </div>
 
       <div className="w-[800px] bg-white p-4 flex flex-col justify-center items-center gap-4">
         {cart?.items?.length > 0 ? (
@@ -61,14 +71,14 @@ const Cart = () => {
                     </div>
                     <div className="flex flex-row gap-1">
                         <button 
-                            onClick={handleIncrease} 
+                            onClick={() => handleDecrease(item.bookId)} 
                             className="w-12 h-10 text-2xl rounded-l-lg text-white hover:bg-indigo-600 transition-colors duration-200 cursor-pointer bg-indigo-500 flex justify-center items-center"
                         >
                             -
                         </button>
                         <div className="w-20 h-10 shadow-xl pl-2 text-gray-500 flex items-center">{item.quantity}</div>
                         <button 
-                            onClick={handleDecrease} 
+                            onClick={() => handleIncrease(item.bookId)} 
                             className="w-12 mr-10 h-10 text-2xl rounded-r-lg text-white hover:bg-indigo-600 transition-colors duration-200 cursor-pointer bg-indigo-500 flex justify-center items-center"
                         >
                             +
@@ -115,7 +125,34 @@ const Cart = () => {
           <p>Your cart is empty.</p>
         )}
       </div>
+
+      
+      </div>
+      <div className="w-1/3 flex justify-center items-start fixed top-26 right-10 z-50">
+
+            <div className=" w-80 bg-white h-70 shadow-2xl rounded-t-2xl flex flex-col items-center">
+                <div className="w-full h-12 bg-indigo-500 text-white font-bold text-xl rounded-t-2xl flex justify-center items-center">
+                    Summary
+                </div>
+                <div className="w-full px-5 font-bold mt-5 flex flex-row justify-between items-center">
+                    <p>Total items</p>
+                    <p>{cart?.items?.length}</p>
+                </div>
+                <div className="w-full px-5 font-bold mt-8 flex flex-row justify-between items-center">
+                    <p>Total quantity</p>
+                    <p>{cart?.totalQuantity}</p>
+                </div>
+                <div className="w-full px-5 font-bold mt-8 flex flex-row justify-between items-center">
+                    <p>Total price</p>
+                    <p>Rs.{cart?.cartTotal}/-</p>
+                </div>
+                <button className="w-70 h-10 text-white cursor-pointer bg-indigo-500 mt-6 hover:bg-indigo-600 transition-colors duration-200">
+                    Go to Checkout
+                </button>
+            </div>
+      </div>
     </div>
+    </>
   );
 };
 

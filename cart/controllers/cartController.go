@@ -122,12 +122,14 @@ func (cc *CartController) GetUserCart(w http.ResponseWriter, r *http.Request) {
 
 	type DetailedCartItem struct {
 		models.CartItem
-		Book      Book    `json:"book"`
-		ItemTotal float64 `json:"itemTotal"`
+		Book         Book    `json:"book"`
+		ItemTotal    float64 `json:"itemTotal"`
+		ItemQuantity int     `json:"itemQuantity"`
 	}
 
 	var detailedCart []DetailedCartItem
 	var cartTotal float64
+	var totalQuantity int
 
 	for _, item := range cartItems {
 		resp, err := http.Get(fmt.Sprintf("%s/books/%s", cc.BookServiceURL, item.BookID))
@@ -144,17 +146,21 @@ func (cc *CartController) GetUserCart(w http.ResponseWriter, r *http.Request) {
 		itemTotal := book.Price * float64(item.Quantity)
 		cartTotal += itemTotal
 
+		totalQuantity += item.Quantity
+
 		detailedCart = append(detailedCart, DetailedCartItem{
-			CartItem:  item,
-			Book:      book,
-			ItemTotal: itemTotal,
+			CartItem:     item,
+			Book:         book,
+			ItemTotal:    itemTotal,
+			ItemQuantity: item.Quantity,
 		})
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"items":     detailedCart,
-		"cartTotal": cartTotal,
+		"items":         detailedCart,
+		"cartTotal":     cartTotal,
+		"totalQuantity": totalQuantity,
 	})
 }
 
@@ -190,7 +196,7 @@ func (cc *CartController) UpdateQuantity(w http.ResponseWriter, r *http.Request,
 
 	// fethc current quantity
 	var item models.CartItem
-	err = cc.CartCollection.FindOne(ctx, bson.M{"userId": userId, "bookId": bookId}).Decode(&item)
+	err = cc.CartCollection.FindOne(ctx, bson.M{"userId": userId, "bookId": bookObjID}).Decode(&item)
 	if err != nil {
 		http.Error(w, "Item not found", http.StatusNotFound)
 		return
@@ -204,7 +210,7 @@ func (cc *CartController) UpdateQuantity(w http.ResponseWriter, r *http.Request,
 	}
 
 	_, err = cc.CartCollection.UpdateOne(ctx,
-		bson.M{"userId": userId, "bookId": bookId},
+		bson.M{"userId": userId, "bookId": bookObjID},
 		bson.M{"$set": bson.M{"quantity": newQuantity}},
 	)
 	if err != nil {

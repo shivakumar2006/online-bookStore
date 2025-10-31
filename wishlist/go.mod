@@ -3,8 +3,9 @@ module github.com/shivakumar2006/online-bookstore/wishlist
 go 1.23.4
 
 require (
-	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/gorilla/mux v1.8.1
+	github.com/joho/godotenv v1.5.1
 	github.com/rs/cors v1.11.1
 	go.mongodb.org/mongo-driver v1.17.6
 )

@@ -8,28 +8,31 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/shivakumar2006/online-bookstore/wishlist/models"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var WishlistCollection *mongo.Collection
+type WishlistController struct {
+	WishlistCollection *mongo.Collection
+	JwtKey             []byte
+	BookServiceURL     string
+}
 
-func VerifyToken(r *http.Request) (string, error) {
+func (wc *WishlistController) VerifyToken(r *http.Request) (string, error) {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
-		return "", fmt.Errorf("missing authorization header")
+		return "", fmt.Errorf("missing authorization error")
 	}
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte JwtKey, nil
+		return wc.JwtKey, nil
 	})
 	if err != nil || !token.Valid {
-		return "", fmt.Errorf("invalid token: %v", err)
+		return "", fmt.Errorf("invalid token %v", err)
 	}
 
 	userID, ok := claims["userId"].(string)
@@ -40,98 +43,107 @@ func VerifyToken(r *http.Request) (string, error) {
 	return userID, nil
 }
 
-func AddToWishlist(w http.ResponseWriter, r *http.Request) {
+func (wc *WishlistController) AddToWishlist(w http.ResponseWriter, r *http.Request) {
+	userID, err := wc.VerifyToken(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	var item models.WishlistItem
 	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	item.UserID = userID
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// check if the item is already exist for the user
-	count, _ := WishlistCollection.CountDocuments(ctx, bson.M{
-		"userId": item.UserID,
-		"bookId": item.BookID,
-	})
-
-	if count > 0 {
-		http.Error(w, "Book already in wishlist", http.StatusBadRequest)
+	filter := bson.M{"userId": userID, "bookId": item.BookID}
+	count, err := wc.WishlistCollection.CountDocuments(ctx, filter)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	item.CreatedAt = time.Now().Unix()
-	res, err := WishlistCollection.InsertOne(ctx, item)
+	if count > 0 {
+		http.Error(w, "book already in wishlist", http.StatusConflict)
+		return
+	}
+
+	_, err = wc.WishlistCollection.InsertOne(ctx, item)
 	if err != nil {
 		http.Error(w, "Failed to add to wishlist", http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "book added to wishlist",
-		"id":      res.InsertedID,
-	})
+	json.NewEncoder(w).Encode(map[string]string{"message": "book added to wishlist"})
 }
 
-func GetWishlist(w http.ResponseWriter, r *http.Request) {
-	userIDStr := r.URL.Query().Get("userid")
-	if userIDStr == "" {
-		http.Error(w, "userid required", http.StatusBadRequest)
-		return
-	}
-
-	userID, err := primitive.ObjectIDFromHex(userIDStr)
+func (wc *WishlistController) RemoveFromCart(w http.ResponseWriter, r *http.Request) {
+	userID, err := wc.VerifyToken(r)
 	if err != nil {
-		http.Error(w, "invalid userId", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	var item models.WishlistItem
+	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := WishlistCollection.Find(ctx, bson.M{"userId": userID})
-	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
-		return
-	}
-	defer cursor.Close(ctx)
-
-	var wishlist []models.WishlistItem
-	if err := cursor.All(ctx, &wishlist); err != nil {
-		http.Error(w, "Failed to read wishlist", http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(wishlist)
-}
-
-func RemoveFromWishlist(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		UserID string `json:"userId"`
-		BookID string `json:"bookId"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
-		return
-	}
-
-	userID, err := primitive.ObjectIDFromHex(req.UserID)
-	bookID, err2 := primitive.ObjectIDFromHex(req.BookID)
-	if err != nil || err2 != nil {
-		http.Error(w, "Invalid id's", http.StatusBadRequest)
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	_, err = WishlistCollection.DeleteOne(ctx, bson.M{"userId": userID, "bookId": bookID})
+	filter := bson.M{"userId": userID, "bookId": item.BookID}
+	_, err = wc.WishlistCollection.DeleteOne(ctx, filter)
 	if err != nil {
 		http.Error(w, "Failed to remove form wishlist", http.StatusInternalServerError)
 		return
 	}
 
 	json.NewEncoder(w).Encode(map[string]string{"message": "book removed from wishlist"})
+}
+
+func (wc *WishlistController) GetWishList(w http.ResponseWriter, r *http.Request) {
+	userID, err := wc.VerifyToken(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	cursor, err := wc.WishlistCollection.Find(ctx, bson.M{"userId": userID})
+	if err != nil {
+		http.Error(w, "failed to fetch wishlist", http.StatusInternalServerError)
+		return
+	}
+	defer cursor.Close(ctx)
+
+	var wishlist []models.WishlistItem
+	if err := cursor.All(ctx, &wishlist); err != nil {
+		http.Error(w, "Error reading wishlist data", http.StatusInternalServerError)
+		return
+	}
+
+	var books []models.Book
+	for _, item := range wishlist {
+		bookResp, err := http.Get(fmt.Sprintf("%s/books/%s", wc.BookServiceURL, item.BookID))
+		if err != nil || bookResp.StatusCode != http.StatusOK {
+			continue
+		}
+		var book models.Book
+		if err := json.NewDecoder(bookResp.Body).Decode(&book); err == nil {
+			books = append(books, book)
+		}
+		bookResp.Body.Close()
+
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(books)
 }
