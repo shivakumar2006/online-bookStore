@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { setUser } from '../redux/api/authSlice';
 import { useSelector } from 'react-redux';
 import { cartApi } from "../redux/api/cartApi";
+import { wishlistApi } from '../redux/api/wishlistApi';
 
 
 const profile = () => {
@@ -22,9 +23,11 @@ const profile = () => {
             dispatch(setUser(null));
 
             dispatch(cartApi.util.resetApiState());
+            dispatch(wishlistApi.util.resetApiState());
 
            localStorage.removeItem("jwt_token");
            localStorage.removeItem("token"); // just in case another key was used
+           localStorage.removeItem("userId");
 
             console.log("logout successful");
             navigate("/login"); // Auth page par redirect

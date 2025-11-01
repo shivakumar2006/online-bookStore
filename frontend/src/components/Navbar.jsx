@@ -66,7 +66,7 @@ const Navbar = () => {
 
                 <div onClick={handleCartClick} className='relative w-10 h-10 rounded-full flex justify-center items-center hover:bg-indigo-200 hover:transition-transform duration-500 cursor-pointer'>
                     <FaCartShopping className='text-2xl'/>
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">{cart?.items?.length || 0}</span>
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">{cart?.items?.length}</span>
                 </div>
                 <div onClick={handleWishlistClick} className='relative w-10 h-10 rounded-full flex justify-center items-center hover:bg-indigo-200 hover:transition-transform duration-500 cursor-pointer'>
                     <IoHeart className='text-2xl'/>
