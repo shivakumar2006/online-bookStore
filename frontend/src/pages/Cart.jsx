@@ -5,14 +5,20 @@ import {
   useIncreaseQuantityMutation,
   useDecreaseQuantityMutation,
 } from "../redux/api/cartApi";
+import { useAddToWishlistMutation } from "../redux/api/wishlistApi";
+import { useGetBookByIdQuery } from "../redux/api/bookApi";
 import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 
 const Cart = () => {
+const { id } = useParams();
   const { data: cart, isLoading, isError } = useGetCartQuery();
+  const { data: book} = useGetBookByIdQuery(id);
   const [removeFromCart] = useRemoveFromCartMutation();
   const [increaseQuantity] = useIncreaseQuantityMutation();
   const [decreaseQuantity] = useDecreaseQuantityMutation();
+  const [addToWishlist] = useAddToWishlistMutation();
 
   const handleRemove = async (bookId) => {
     try {
@@ -23,6 +29,17 @@ const Cart = () => {
       alert("Failed to remove item.");
     }
   };
+
+ const handleAddToWishlist = async (bookId) => {
+  try {
+    await addToWishlist({ bookId }).unwrap();
+    alert("Added to wishlist!");
+  } catch (err) {
+    console.error("Error adding to wishlist:", err);
+    alert("already added in wishlist.");
+  }
+};
+
 
   const handleIncrease = async (bookId) => {
     try {
@@ -104,7 +121,7 @@ const Cart = () => {
                     <p className="text-2xl mr-90 pt-5">Rs.{item?.book?.price}/-</p>
                     <div className="w-full flex flex-row gap-5 mt-8">
                         <button
-                           onClick={() => handleRemove(item.bookId)}
+                           onClick={() => handleAddToWishlist(item.bookId)}
                            className="w-50 h-10 bg-indigo-500 hover:bg-indigo-600 transition-colors duration-200 cursor-pointer text-white px-3 py-1 rounded"
                         >
                           Add to wishlist

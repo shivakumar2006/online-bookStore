@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import LoginPopup from './LoginPopup';
 import { useGetCartQuery } from '../redux/api/cartApi';
+import { useGetWishlistQuery } from '../redux/api/wishlistApi';
 
 const Navbar = () => {
 
@@ -14,6 +15,7 @@ const Navbar = () => {
     const [ showPopup, setShowPopup ] = useState(false);
     const user = useSelector((state) => state.auth.user);
     const { data: cart } = useGetCartQuery();
+    const { data: wishlist } = useGetWishlistQuery();
     const profilePicture = user?.user_metadata?.picture || user?.user_metadata?.avatar_url || null;
 
     console.log("user data: ", user);
@@ -68,7 +70,7 @@ const Navbar = () => {
                 </div>
                 <div onClick={handleWishlistClick} className='relative w-10 h-10 rounded-full flex justify-center items-center hover:bg-indigo-200 hover:transition-transform duration-500 cursor-pointer'>
                     <IoHeart className='text-2xl'/>
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">2</span>
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5">{wishlist?.length}</span>
                 </div>
 
                 <div 

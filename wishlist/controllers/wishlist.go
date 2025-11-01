@@ -81,15 +81,18 @@ func (wc *WishlistController) AddToWishlist(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(map[string]string{"message": "book added to wishlist"})
 }
 
-func (wc *WishlistController) RemoveFromCart(w http.ResponseWriter, r *http.Request) {
+func (wc *WishlistController) RemoveFromWishlist(w http.ResponseWriter, r *http.Request) {
 	userID, err := wc.VerifyToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
-	var item models.WishlistItem
-	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
+	var data struct {
+		BookID string `json:"bookId"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -97,14 +100,14 @@ func (wc *WishlistController) RemoveFromCart(w http.ResponseWriter, r *http.Requ
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	filter := bson.M{"userId": userID, "bookId": item.BookID}
+	filter := bson.M{"userId": userID, "bookId": data.BookID}
 	_, err = wc.WishlistCollection.DeleteOne(ctx, filter)
 	if err != nil {
-		http.Error(w, "Failed to remove form wishlist", http.StatusInternalServerError)
+		http.Error(w, "Failed to remove from wishlist", http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]string{"message": "book removed from wishlist"})
+	json.NewEncoder(w).Encode(map[string]string{"message": "Book removed from wishlist"})
 }
 
 func (wc *WishlistController) GetWishList(w http.ResponseWriter, r *http.Request) {

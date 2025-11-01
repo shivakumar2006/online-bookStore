@@ -1,17 +1,43 @@
 import React from 'react'
-import { useGetWishlistQuery } from '../redux/api/wishlistApi';
+import { useGetWishlistQuery, useRemoveFromWishlistMutation } from '../redux/api/wishlistApi';
 import { Link } from 'react-router-dom';
+import { useAddToCartMutation } from '../redux/api/cartApi';
+
 
 const Wishlist = () => {
 
     const userId = localStorage.getItem("userId"); // or from auth state
-    const {data: wishlistApi, isLoading, isError } = useGetWishlistQuery(userId);
+    const { data: wishlistApi, isLoading, isError, refetch } = useGetWishlistQuery(userId);
+    const [removeFromWishlist] = useRemoveFromWishlistMutation();
+    const [addToCart] = useAddToCartMutation();
 
 
     if (isLoading) return <p>Loading...</p>
     if (isError) return <p>Error fetching data</p>
 
     console.log("wihslist data: ", wishlistApi);
+
+    const handleAddToCart = async (bookId) => {
+      try {
+        await addToCart({ bookId, quantity: 1 }).unwrap();
+        alert("Book added to cart");
+      } catch (err) {
+        console.error("Error adding to cart", err);
+        alert("Already in cart");
+      }
+    };
+
+    const handleRemoveFromWishlist = async (bookId) => {
+      try {
+        await removeFromWishlist({ bookId }).unwrap();
+        alert("Book removed from wishlist");
+        refetch();
+      } catch (err) {
+        console.error("Error removing from wishlist", err);
+        alert("Failed to remove from wishlist");
+      }
+    };
+
 
   return (
     <>
@@ -52,10 +78,10 @@ const Wishlist = () => {
               <p className="text-2xl mr-90 pt-5">Rs. {item.price}/-</p>
 
               <div className="w-full flex flex-row gap-5 mt-8">
-                <button className="w-50 h-10 bg-indigo-500 hover:bg-indigo-600 transition-colors duration-200 cursor-pointer text-white px-3 py-1 rounded">
+                <button onClick={() => handleAddToCart(item.id)} className="w-50 h-10 bg-indigo-500 hover:bg-indigo-600 transition-colors duration-200 cursor-pointer text-white px-3 py-1 rounded">
                   Add to Cart
                 </button>
-                <button className="w-50 h-10 bg-red-500 hover:bg-red-600 transition-colors duration-200 cursor-pointer text-white px-3 py-1 rounded">
+                <button onClick={() => handleRemoveFromWishlist(item.id)} className="w-50 h-10 bg-red-500 hover:bg-red-600 transition-colors duration-200 cursor-pointer text-white px-3 py-1 rounded">
                   Remove
                 </button>
               </div>

@@ -10,5 +10,5 @@ import (
 func WishlistRoutes(r *mux.Router, wc *controllers.WishlistController) {
 	r.HandleFunc("/wishlist/add", wc.AddToWishlist).Methods(http.MethodPost)
 	r.HandleFunc("/wishlist", wc.GetWishList).Methods(http.MethodGet)
-	r.HandleFunc("/wishlist/remove", wc.RemoveFromCart).Methods(http.MethodDelete)
+	r.HandleFunc("/wishlist/remove", wc.RemoveFromWishlist).Methods(http.MethodDelete)
 }
