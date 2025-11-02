@@ -9,7 +9,7 @@ import { useAddToWishlistMutation } from "../redux/api/wishlistApi";
 import { useGetBookByIdQuery } from "../redux/api/bookApi";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
 const { id } = useParams();
@@ -19,6 +19,7 @@ const { id } = useParams();
   const [increaseQuantity] = useIncreaseQuantityMutation();
   const [decreaseQuantity] = useDecreaseQuantityMutation();
   const [addToWishlist] = useAddToWishlistMutation();
+  const navigate = useNavigate();
 
   const handleRemove = async (bookId) => {
     try {
@@ -147,7 +148,7 @@ const { id } = useParams();
       </div>
       <div className="w-1/3 flex justify-center items-start fixed top-26 right-10 z-50">
 
-            <div className=" w-80 bg-white h-70 shadow-2xl rounded-t-2xl flex flex-col items-center">
+            <div className=" w-80 bg-white h-80 shadow-2xl rounded-t-2xl flex flex-col items-center">
                 <div className="w-full h-12 bg-indigo-500 text-white font-bold text-xl rounded-t-2xl flex justify-center items-center">
                     Summary
                 </div>
@@ -163,7 +164,7 @@ const { id } = useParams();
                     <p>Total price</p>
                     <p>Rs.{cart?.cartTotal}/-</p>
                 </div>
-                <button className="w-70 h-10 text-white cursor-pointer bg-indigo-500 mt-6 hover:bg-indigo-600 transition-colors duration-200">
+                <button onClick={() => navigate("/checkout")} className="w-70 h-10 text-white cursor-pointer bg-indigo-500 mt-6 hover:bg-indigo-600 transition-colors duration-200">
                     Go to Checkout
                 </button>
             </div>
