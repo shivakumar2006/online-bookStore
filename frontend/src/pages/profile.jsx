@@ -6,6 +6,9 @@ import { setUser } from '../redux/api/authSlice';
 import { useSelector } from 'react-redux';
 import { cartApi } from "../redux/api/cartApi";
 import { wishlistApi } from '../redux/api/wishlistApi';
+import { FaShoppingCart } from "react-icons/fa";
+import { IoMdHeart } from "react-icons/io";
+import { BsStack } from "react-icons/bs";
 
 
 const profile = () => {
@@ -38,7 +41,7 @@ const profile = () => {
     }
 
   return (
-    <div className='w-full min-h-screen flex flex-col justify-center items-center'>
+    <div className='w-full min-h-screen flex flex-row justify-center items-center gap-20'>
         <div className='w-100 h-120 flex flex-col justify-center items-center shadow-2xl'>
             <div className='w-50 h-50 rounded-full bg-black text-white flex justify-center items-center overflow-hidden'>
               {user?.user_metadata?.avatar_url ? (
@@ -60,8 +63,25 @@ const profile = () => {
             className='w-50 h-10 mt-10 flex justify-center items-center text-white bg-indigo-500 hover:bg-indigo-600 transition-colours duration-200 rounded-3xl cursor-pointer'
             onClick={handleLogOut}
         >
-            Log out
+            {!user ? "login first" : "Log out"}
         </button>
+        </div>
+
+        <div className='w-80 h-80 flex flex-col justify-around items-center'>
+            <button onClick={() => navigate("/cart")} className='w-full h-20 rounded-xl hover:border-2 border hover:bg-blue-50 border-blue-300 flex flex-row gap-15 justify-center items-center transition-colors duration-200 cursor-pointer'>
+                <FaShoppingCart className='w-20 h-13 mr-15'/>
+                <p className='text-4xl font-bold mr-10'>Cart</p>
+            </button>
+
+            <button onClick={() => navigate("/wishlist")} className='w-full h-20 rounded-xl hover:border-2 border hover:bg-green-50 border-green-300 flex flex-row gap-15 justify-center items-center transition-colors duration-200 cursor-pointer'>
+                <IoMdHeart className='w-30 h-13'/>
+                <p className='text-4xl font-bold mr-10'>Wishlist</p>
+            </button>
+
+            <button onClick={() => navigate("/orders")} className='w-full h-20 rounded-xl hover:border-2 border hover:bg-indigo-50 border-indigo-300 flex flex-row gap-15 justify-center items-center transition-colors duration-200 cursor-pointer'>
+                <BsStack className='w-30 h-13'/>
+                <p className='text-4xl font-bold mr-10'>Orders</p>
+            </button>
         </div>
     </div>
   )

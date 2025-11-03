@@ -4,6 +4,7 @@ export const wishlistApi = createApi({
     reducerPath: "wishlistApi",
     baseQuery: fetchBaseQuery({
         baseUrl: "http://localhost:8083",
+        credentials: "include",
         prepareHeaders: (headers, { getState }) => {
             const state = getState();
             const token = 

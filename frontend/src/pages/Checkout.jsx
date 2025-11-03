@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { FaCreditCard, FaMoneyBillWave } from "react-icons/fa";
 import { useGetCartQuery } from "../redux/api/cartApi";
 import { useCreatePaymentMutation } from "../redux/api/paymentApi";
+import { useSelector } from "react-redux";
 
 const Checkout = ({ userId }) => {
   const [paymentMethod, setPaymentMethod] = useState("cod");
@@ -11,6 +12,8 @@ const Checkout = ({ userId }) => {
   const { data: cartData, isLoading: cartLoading } = useGetCartQuery(userId);
   const navigate = useNavigate();
   const [createPayment] = useCreatePaymentMutation();
+  const user = useSelector((state) => state.auth.user);
+  console.log("🟢 Checkout user:", user);
 
   // ✅ Get items safely
   const cartItems = cartData?.items || [];
@@ -21,15 +24,16 @@ const Checkout = ({ userId }) => {
       alert("Your cart is empty!");
       return;
     }
-  
+
     try {
       const orderItems = cartItems.map((item) => ({
         bookId: item.bookId,
+        title: item.book.title,   // ✅ Add title
+        price: item.book.price,   // ✅ Add price
         quantity: item.quantity || item.itemQuantity,
       }));
-    
+
       if (paymentMethod === "razorpay") {
-        // 💳 Stripe Dummy payment
         const paymentRes = await createPayment({
           items: orderItems,
           total,
@@ -37,20 +41,20 @@ const Checkout = ({ userId }) => {
         }).unwrap();
       
         if (paymentRes.url) {
-          // Redirect to Stripe checkout
           window.location.href = paymentRes.url;
         } else {
           alert("Failed to start Stripe payment!");
         }
         return;
       }
-    
+
+
       // 🏦 COD order placement
       await placeOrder({
         items: orderItems,
         paymentMethod,
       }).unwrap();
-    
+
       alert("Order placed successfully!");
       navigate("/orders");
     } catch (error) {

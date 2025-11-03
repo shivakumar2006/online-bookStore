@@ -33,7 +33,7 @@ type CheckoutRequest struct {
 func (pc *PaymentController) VerifyToken(r *http.Request) (string, error) {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
-		return "", fmt.Errorf("missing authorization header")
+		return "", fmt.Errorf("missing authorization error")
 	}
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
@@ -42,15 +42,34 @@ func (pc *PaymentController) VerifyToken(r *http.Request) (string, error) {
 		return pc.JwtKey, nil
 	})
 	if err != nil || !token.Valid {
-		return "", fmt.Errorf("invalid token: %v", err)
+		return "", fmt.Errorf("Invalid token %v", err)
 	}
 
 	userID, ok := claims["userId"].(string)
 	if !ok {
-		return "", fmt.Errorf("userId missing or invalid type")
+		return "", fmt.Errorf("userid is missing or invalid type")
 	}
 
 	return userID, nil
+}
+
+func (pc *PaymentController) VerifySession(w http.ResponseWriter, r *http.Request) {
+	sessionID := r.URL.Query().Get("session_id")
+	if sessionID == "" {
+		http.Error(w, "Missing session_id", http.StatusBadRequest)
+		return
+	}
+
+	stripe.Key = os.Getenv("SECRET_KEY")
+
+	s, err := session.Get(sessionID, nil)
+	if err != nil {
+		http.Error(w, "Failed to retrieve session", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(s)
 }
 
 // ✅ Create Stripe Checkout Session
@@ -94,7 +113,7 @@ func (pc *PaymentController) CreateCheckoutSession(w http.ResponseWriter, r *htt
 		PaymentMethodTypes: stripe.StringSlice([]string{"card"}),
 		LineItems:          lineItems,
 		Mode:               stripe.String("payment"),
-		SuccessURL:         stripe.String("http://localhost:5173/success"),
+		SuccessURL:         stripe.String("http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}"),
 		CancelURL:          stripe.String("http://localhost:5173/cancel"),
 		Metadata: map[string]string{
 			"userId": userID,

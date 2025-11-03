@@ -16,6 +16,9 @@ import { useDispatch } from 'react-redux';
 import { setUser } from './redux/api/authSlice';
 import Wishlist from './pages/Wishlist';
 import Checkout from './pages/Checkout';
+import Success from './pages/Success';
+import Cancel from './pages/Cancel';
+import Orders from './pages/Orders';
 
 const App = () => {
 
@@ -42,7 +45,7 @@ const App = () => {
   const location = useLocation();
 
   // Paths where you don't want Navbar & Footer
-  const hideLayout = ["/login", "/signup", "/forgot-password", "/reset-password"].includes(location.pathname);
+  const hideLayout = ["/login", "/signup", "/forgot-password", "/reset-password", "/success", "/cancel"].includes(location.pathname);
 
   return (
     <>
@@ -59,6 +62,9 @@ const App = () => {
           <Route path='/cart' element={<Cart />}/>
           <Route path='/wishlist' element={<Wishlist />}/>
           <Route path='/checkout' element={<Checkout />}/>
+          <Route path="/success" element={<Success />} />
+          <Route path="/cancel" element={<Cancel />} />
+          <Route path='/orders' element={<Orders />}/>
         </Routes>
       </div>
       {!hideLayout && <Footer />}

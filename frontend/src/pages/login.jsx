@@ -42,15 +42,19 @@ const Login = () => {
         alert("Please enter both email and password.");
         return;
       }
-  
+
       try {
         const res = await loginMutation({ email, password }).unwrap();
         console.log("JWT login response: ", res);
-    
+
         // ✅ Save both token & user in Redux
-        dispatch(setUser(res));
-        localStorage.setItem("token", res.token);
-    
+        dispatch(setUser({
+          user: res.user,
+          token: res.token,
+        }));
+
+        // localStorage.setItem("token", res.token);
+
         navigate("/");
       } catch (error) {
         console.log("Login error: ", error);

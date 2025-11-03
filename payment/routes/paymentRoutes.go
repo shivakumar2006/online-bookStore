@@ -9,4 +9,5 @@ import (
 
 func PaymentRoutes(r *mux.Router, pc *controllers.PaymentController) {
 	r.HandleFunc("/payment/create-checkout-session", pc.CreateCheckoutSession).Methods(http.MethodPost)
+	r.HandleFunc("/payment/verify-session", pc.VerifySession).Methods(http.MethodGet) // ✅ Add this line
 }
