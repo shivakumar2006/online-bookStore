@@ -6,17 +6,16 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"github.com/shivakumar2006/online-bookstore/payment/controllers"
 	"github.com/shivakumar2006/online-bookstore/payment/routes"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("⚠️ No .env file found")
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Println("⚠️ No .env file found")
+	// }
 
 	r := mux.NewRouter()
 

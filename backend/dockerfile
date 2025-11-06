@@ -1,17 +1,45 @@
-FROM golang:1.23.4-alpine
+# # FROM golang:1.24.0-alpine AS builder
+# # WORKDIR /app
 
-WORKDIR /app 
+# # COPY go.mod go.sum ./
+# # RUN go mod download
 
-COPY go.mod ./
+# # # Copy your book images into the image
+# # COPY ../data/books /app/data/books
 
-COPY go.sum ./
+# # COPY . .
+# # RUN go build -o backendservice .
 
-RUN go mod download 
+# # FROM alpine:latest
+# # WORKDIR /root/
+# # COPY --from=builder /app/backendservice .
 
-COPY . . 
+# # EXPOSE 8080
+# # CMD ["./backendservice"]
+FROM golang:1.24.0-alpine AS builder
+WORKDIR /app
 
-RUN go build -o main 
+# Copy Go modules
+COPY backend/go.mod backend/go.sum ./
+RUN go mod download
+
+# Copy backend source code
+COPY backend/. . 
+
+# Copy data folder
+COPY data/books ./data/books
+
+# Build binary
+RUN go build -o backendservice
+
+# Stage 2
+FROM alpine:latest
+WORKDIR /root/
+
+COPY --from=builder /app/backendservice .
+
+# Copy data
+COPY data/books ./data/books
 
 EXPOSE 8080
-
 CMD ["./backendservice"]

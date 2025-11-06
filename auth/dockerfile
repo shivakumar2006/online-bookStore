@@ -1,17 +1,20 @@
-FROM golang:1.23.4-alpine 
+# ---------- Stage 1: Build ----------
+FROM golang:1.24-bullseye AS builder
 
-WORKDIR /app 
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
 
-COPY go.mod ./
+COPY . .
+RUN go build -o auth .
 
-COPY go.sum ./
+# ---------- Stage 2: Run ----------
+FROM debian:bullseye-slim
 
-RUN go mod download 
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 
-COPY . . 
+WORKDIR /app
+COPY --from=builder /app/auth .
 
-RUN go build -o main 
-
-EXPOSE 8081 
-
-CMD ["./authservice"]
+EXPOSE 8081
+CMD ["./auth"]

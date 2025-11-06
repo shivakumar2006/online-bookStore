@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -16,24 +18,35 @@ import (
 )
 
 func main() {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	// 🧩 Load Mongo credentials from environment variables
+	username := os.Getenv("MONGO_INITDB_ROOT_USERNAME")
+	password := os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+
+	if username == "" || password == "" {
+		log.Fatal("❌ Mongo credentials not found in environment variables")
+	}
+
+	// 🧠 Connect using env-based credentials
+	uri := fmt.Sprintf("mongodb://%s:%s@mongodb-service:27017", username, password)
+	clientOptions := options.Client().ApplyURI(uri)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("❌ MongoDB connection error:", err)
 	}
 
 	controllers.BookCollection = client.Database("bookstore").Collection("books")
 
-	// router
+	// 📚 Setup Router
 	router := mux.NewRouter()
 	routes.BookRoutes(router)
 
-	// Setup CORS
+	// 🌐 Setup CORS for frontend
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"}, // frontend origin
+		AllowedOrigins:   []string{"http://bookstore.local"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
@@ -41,6 +54,8 @@ func main() {
 
 	handler := c.Handler(router)
 
-	log.Println("🚀 Server running on port :8080")
-	http.ListenAndServe(":8080", handler)
+	log.Println("🚀 Backend server running on port :8080")
+	if err := http.ListenAndServe(":8080", handler); err != nil {
+		log.Fatal(err)
+	}
 }

@@ -2,28 +2,36 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 	"github.com/rs/cors"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-
 	"github.com/shivakumar2006/online-bookstore/cart/controllers"
 	"github.com/shivakumar2006/online-bookstore/cart/routes"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env")
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal("Error loading .env")
+	// }s
+
+	username := os.Getenv("MONGO_INITDB_ROOT_USERNAME")
+	password := os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+
+	if username == "" || password == "" {
+		log.Fatal("❌ Mongo credentials not found in environment variables")
 	}
 
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	// 🧠 Connect using env-based credentials
+	uri := fmt.Sprintf("mongodb://%s:%s@mongodb-service:27017", username, password)
+	clientOptions := options.Client().ApplyURI(uri)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -44,7 +52,7 @@ func main() {
 	routes.CartRoutes(router, cc)
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedOrigins:   []string{"http://bookstore.local"},
 		AllowedMethods:   []string{"GET", "POST", "DELETE", "PATCH", "OPTIONS"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,

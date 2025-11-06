@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata: 
+  name: payment-deployment 
+  labels: 
+    app: payment 
+spec:   
+  replicas: 1 
+  selector: 
+    matchLabels:
+      app: payment
+  template:
+    metadata:
+      labels:
+        app: payment 
+    spec: 
+      containers:
+        - name: payment
+          image: shivakumar2006/payment-service:latest
+          ports: 
+            - containerPort: 8085
+          env: 
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: stripe-secret 
+                  key: STRIPE_SECRET_KEY
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_SECRET

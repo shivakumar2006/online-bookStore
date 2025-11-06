@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: wishlist-deployment
+  labels:
+    app: wishlist 
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wishlist 
+  template:
+    metadata:
+      labels:
+        app: wishlist 
+    spec:
+      containers:
+        - name: wishlist
+          image: shivakumar2006/wishlist-service:latest
+          ports: 
+            - containerPort: 8083 
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: mongo-root-username
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: mongo-root-password
+            - name: MONGO_URI
+              value: "mongodb://$(MONGO_INITDB_ROOT_USERNAME):$(MONGO_INITDB_ROOT_PASSWORD)@mongodb-service:27017"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_SECRET

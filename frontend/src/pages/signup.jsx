@@ -46,6 +46,7 @@ const Signup = () => {
                 alert("Signup successful! Please login now.");
                 navigate("/login"); // redirect to login page
             }
+
         } catch (err) {
             console.log("Signup error:", err);
             alert(err?.data?.message || "Signup failed, User already exist, please try again.");

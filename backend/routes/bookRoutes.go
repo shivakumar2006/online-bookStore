@@ -11,7 +11,8 @@ func BookRoutes(router *mux.Router) {
 	router.HandleFunc("/books", controllers.GetBooks).Methods("GET")
 	router.HandleFunc("/books/{id}", controllers.GetBooksByID).Methods("GET")
 	router.PathPrefix("/books/images/").Handler(
-		http.StripPrefix("/books/images/", http.FileServer(http.Dir("/Users/shivakumar/projects/online-bootStore/data/books/"))),
+		http.StripPrefix("/books/images/",
+			http.FileServer(http.Dir("/app/data/books"))),
 	)
 
 	// future:

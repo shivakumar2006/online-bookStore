@@ -1,17 +1,18 @@
-FROM golang:1.23.4-alpine
+# Stage 1: Build the binary
+FROM golang:1.24.0-alpine AS builder
+WORKDIR /app
 
-WORKDIR /app 
+COPY go.mod go.sum ./
+RUN go mod download
 
-COPY go.sum / 
+COPY . .
+RUN go build -o ordersservice .
 
-COPY go.mod /  
+# Stage 2: Create minimal runtime image
+FROM alpine:latest
+WORKDIR /root/
 
-RUN go mod download 
+COPY --from=builder /app/ordersservice .
 
-COPY . . 
-
-RUN go run -o main 
-
-EXPOSE 8084 
-
+EXPOSE 8084
 CMD ["./ordersservice"]
