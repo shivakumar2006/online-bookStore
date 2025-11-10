@@ -93,6 +93,7 @@ const BookDetails = () => {
         <div className="w-1/3 h-auto flex flex-col items-center ml-20 pt-15">
           <img
             src={`http://localhost:8080/books/images/${book.coverImage}`}
+            // src={`http://bookstore.local/books/images/${book.coverImage}`}
             className="rounded-3xl shadow-2xl hover:scale-103 transition-transform duration-500 cursor-pointer"
           />
           <p className="text-4xl font-bold pt-20">{book.title}</p>

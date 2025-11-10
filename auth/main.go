@@ -52,7 +52,7 @@ func main() {
 	routes.AuthRoutes(router)
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://bookstore.local"},
+		AllowedOrigins:   []string{"http://bookstore.local", "http://localhost:5173"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,

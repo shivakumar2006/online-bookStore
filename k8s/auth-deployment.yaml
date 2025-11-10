@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: auth-service
-          image: shivakumar2006/auth-service:latest
+          image: shivakumar2006/auth-service:latest   # change if you use another tag
           ports:
             - containerPort: 8081
           env:
@@ -31,9 +31,5 @@ spec:
                   name: mongodb-secret
                   key: mongo-root-password
             - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: jwt-secret
-                  key: secret
-
-
+              value: "supersecretkey"
+          imagePullPolicy: Always

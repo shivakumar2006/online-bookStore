@@ -19,10 +19,18 @@ spec:
           image: shivakumar2006/cart-service:latest
           ports: 
             - containerPort: 8082 
-          env: 
-            - name: MONGO_URI
-              value: "mongodb://username:password@mongodb-service:27017"
-            - name: JWT_SECRET 
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret          # <-- sahi secret name
+                  key: mongo-root-username      # <-- secret ke andar ka key
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: mongo-root-password
+            - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: jwt-secret

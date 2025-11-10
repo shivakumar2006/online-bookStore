@@ -46,6 +46,10 @@ export const jwtAuthApi = createApi({
     getUser: builder.query({
       query: () => "/me",
     }),
+    verifyToken: builder.query({
+      query: () => "/verify",
+    }),
+
   }),
 });
 
@@ -55,4 +59,5 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useGetUserQuery,
+  useVerifyTokenQuery,
 } = jwtAuthApi;

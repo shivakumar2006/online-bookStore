@@ -103,8 +103,10 @@ const Content = () => {
             >
               <Link key={book.id} to={`/books/${book.id}`}>
                 <img
-                  src={`http://localhost:8080/books/images/${books.coverImage}`}
+                  // src={`http://localhost:8080/books/images/${book.coverImage}`}
                   // src={`/books/images/${book.coverImage}`}
+                  // src={`http://bookstore.local/books/images/${book.coverImage}`}
+                  src={`http://localhost:8080/books/images/${encodeURIComponent(book.coverImage)}`}
                   className="w-90 h-90 object-cover rounded-t-2xl mt-5"
                   alt={book.title}
                 />

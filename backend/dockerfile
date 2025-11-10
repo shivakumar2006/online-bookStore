@@ -16,30 +16,36 @@
 
 # # EXPOSE 8080
 # # CMD ["./backendservice"]
+# Stage 1
+# Stage 1: Builder
+# Stage 1: Build Go binary
+# Stage 1: Build
+# Stage 1: Build
+# Stage 1: Build
+
+
+# Stage 1: Build the Go binary
 FROM golang:1.24.0-alpine AS builder
 WORKDIR /app
 
-# Copy Go modules
+# Copy Go modules (from backend folder)
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 
 # Copy backend source code
-COPY backend/. . 
+COPY backend/ ./
 
-# Copy data folder
-COPY data/books ./data/books
+# ✅ Copy books data from root-level "data/books"
+COPY data/books /app/data/books
 
-# Build binary
+# Build the Go binary
 RUN go build -o backendservice
 
-# Stage 2
+# Stage 2: Final image
 FROM alpine:latest
-WORKDIR /root/
-
+WORKDIR /app
 COPY --from=builder /app/backendservice .
-
-# Copy data
-COPY data/books ./data/books
+COPY --from=builder /app/data/books ./data/books
 
 EXPOSE 8080
 CMD ["./backendservice"]

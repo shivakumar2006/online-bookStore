@@ -1,20 +1,45 @@
-# ---------- Stage 1: Build ----------
-FROM golang:1.24-bullseye AS builder
+# # -------- Stage 1: Build --------
+# FROM golang:1.24 AS builder
 
+# WORKDIR /app
+
+# # Copy Go modules
+# COPY auth/go.mod auth/go.sum ./
+# RUN go mod download
+
+# # Copy the rest of the source
+# COPY auth/ ./
+
+# # Build the Go binary
+# RUN CGO_ENABLED=0 GOOS=linux go build -o auth .
+
+# # -------- Stage 2: Run --------
+# FROM alpine:latest
+
+# WORKDIR /app
+
+# # Copy the compiled binary from the builder
+# COPY --from=builder /app/auth .
+
+# # Expose the port
+# EXPOSE 8081
+
+# # Run the binary
+# CMD ["./auth"]
+
+
+
+# Stage 1: Build
+FROM golang:1.24 AS builder
 WORKDIR /app
-COPY go.mod go.sum ./
+COPY auth/go.mod auth/go.sum ./
 RUN go mod download
+COPY auth/ ./
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o auth .
 
-COPY . .
-RUN go build -o auth .
-
-# ---------- Stage 2: Run ----------
-FROM debian:bullseye-slim
-
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
-
+FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/auth .
-
+RUN chmod +x ./auth
 EXPOSE 8081
 CMD ["./auth"]

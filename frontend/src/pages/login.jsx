@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { supabase } from '../supabase';
 import { setUser } from '../redux/api/authSlice';
-import { useLoginMutation } from '../redux/api/jwtAuthSlice';
+import { useLoginMutation, useVerifyTokenQuery } from '../redux/api/jwtAuthSlice';
 
 const Login = () => {
     const [loginMutation, { isLoading, error }] = useLoginMutation();
@@ -15,52 +15,78 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const token = localStorage.getItem("token");
+    const { data: verifyData, error: verifyError, isLoading: verifyLoading } = useVerifyTokenQuery(undefined, {
+      skip: !token, // agar token nahi hai to verify mat kar
+    });
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     // Check if OAuth user is already logged in
-   useEffect(() => {
-  const checkOAuthUser = async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error) return;
+//    useEffect(() => {
+//   const checkOAuthUser = async () => {
+//     const { data: { session }, error } = await supabase.auth.getSession();
+//     if (error) return;
 
-    if (session?.user) {
-      dispatch(setUser({
-        name: session.user.user_metadata.full_name,
-        email: session.user.email,
-        token: session.access_token
-      }));
-      navigate("/");
-    }
-  };
-  checkOAuthUser();
-}, [dispatch, navigate]);
+//     if (session?.user) {
+//       dispatch(setUser({
+//         name: session.user.user_metadata.full_name,
+//         email: session.user.email,
+//         token: session.access_token
+//       }));
+//       navigate("/");
+//     }
+//   };
+//   checkOAuthUser();
+// }, [dispatch, navigate]);
 
-    const handleLogin = async (e) => {
-      e.preventDefault();
-      if (!email.trim() || !password.trim()) {
-        alert("Please enter both email and password.");
-        return;
-      }
+    useEffect(() => {
+  if (verifyData && verifyData.user) {
+    console.log("✅ Token verified, user:", verifyData.user);
+    dispatch(setUser({ user: verifyData.user, token }));
+    navigate("/", { replace: true });
+  }
 
-      try {
-        const res = await loginMutation({ email, password }).unwrap();
-        console.log("JWT login response: ", res);
+  if (verifyError) {
+    console.log("❌ Token invalid or expired:", verifyError);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  }
+}, [verifyData, verifyError, dispatch, navigate]);
 
-        // ✅ Save both token & user in Redux
-        dispatch(setUser({
-          user: res.user,
-          token: res.token,
-        }));
 
-        // localStorage.setItem("token", res.token);
+   const handleLogin = async (e) => {
+  e.preventDefault();
+  if (!email.trim() || !password.trim()) {
+    alert("Please enter both email and password.");
+    return;
+  }
 
-        navigate("/");
-      } catch (error) {
-        console.log("Login error: ", error);
-        alert(error?.data?.message || "Login failed");
-      }
+  try {
+    const res = await loginMutation({ email, password }).unwrap();
+    console.log("JWT login response: ", res);
+
+    const userData = {
+      user: res.user || res.data?.user || res, // ✅ flexibility
+      token: res.token || res.access_token || res.session?.access_token,
     };
+
+    // ✅ Save to Redux
+    dispatch(setUser(userData));
+
+    // ✅ Persist in localStorage too
+    localStorage.setItem("token", userData.token);
+    localStorage.setItem("user", JSON.stringify(userData.user));
+
+    // ✅ Redirect to homepage
+    navigate("/", { replace: true });
+  } catch (error) {
+    console.log("Login error: ", error);
+    alert(error?.data?.message || "Login failed");
+  }
+};
+
 
 
     return (

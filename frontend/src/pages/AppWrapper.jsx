@@ -2,41 +2,40 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { supabase } from "../supabase";
-import { setUser } from "../redux/api/authSlice";
-import { logOutUser } from "../redux/api/authSlice";
+import { setUser, logOutUser } from "../redux/api/authSlice";
 
 const AppWrapper = ({ children }) => {
   const dispatch = useDispatch();
-  const { token, user } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const restoreSession = async () => {
-      // ✅ If JWT user already in Redux, skip
-      if (token && user && !user.app_metadata) return;
-
-      // ✅ Step 1: Check JWT token if present
+      // ✅ Step 1: Try restoring JWT user from localStorage
       const storedToken = localStorage.getItem("token");
-      if (storedToken && (!user || user.app_metadata)) {
+
+      if (storedToken) {
         try {
-          localStorage.clear();
-          const res = await axios.get("http://localhost:5000/api/auth/verify", {
+          const res = await axios.get("http://bookstore.local/api/auth/verify", {
             headers: {
               Authorization: `Bearer ${storedToken}`,
             },
           });
-          dispatch(setUser({ user: res.data.user, token: storedToken }));
-          return;
+
+          if (res.data?.valid && res.data?.user) {
+            dispatch(setUser({ user: res.data.user, token: storedToken }));
+            console.log("✅ JWT session restored:", res.data.user);
+            return; // Stop here if JWT is valid
+          }
         } catch (err) {
-          console.error("JWT verification failed:", err);
+          console.error("❌ JWT verification failed:", err);
           localStorage.removeItem("token");
-          dispatch(logOutUser());
         }
       }
 
-      // ✅ Step 2: Check Supabase session for OAuth users
+      // ✅ Step 2: Try restoring Supabase session (OAuth login)
       const { data: { session }, error } = await supabase.auth.getSession();
       if (error) {
-        console.error("Supabase session error:", error);
+        console.error("❌ Supabase session error:", error);
         return;
       }
 
@@ -48,32 +47,34 @@ const AppWrapper = ({ children }) => {
             session,
           })
         );
+        console.log("✅ Supabase session restored:", session.user);
+      } else {
+        console.log("No active session found.");
       }
     };
 
     restoreSession();
 
-    // ✅ Step 3: Sync Supabase login/logout events
-    const { data: subscription } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (session) {
-          dispatch(
-            setUser({
-              user: session.user,
-              token: session.access_token,
-              session,
-            })
-          );
-        } else {
-          dispatch(logOutUser());
-        }
+    // ✅ Step 3: Supabase login/logout event listener
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        dispatch(
+          setUser({
+            user: session.user,
+            token: session.access_token,
+            session,
+          })
+        );
+        console.log("🔄 Supabase auth state changed: logged in");
+      } else {
+        dispatch(logOutUser());
+        console.log("🔄 Supabase auth state changed: logged out");
       }
-    );
+    });
 
-    return () => {
-      subscription.subscription.unsubscribe();
-    };
-  }, [dispatch, token, user]);
+    // ✅ Step 4: Cleanup listener on unmount
+    return () => subscription.subscription.unsubscribe();
+  }, [dispatch]);
 
   return children;
 };

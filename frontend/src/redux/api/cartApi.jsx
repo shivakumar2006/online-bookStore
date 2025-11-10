@@ -4,7 +4,7 @@ export const cartApi = createApi({
   reducerPath: "cartApi",
   baseQuery: fetchBaseQuery({
     // baseUrl: "http://localhost:8082", // ✅ fixed
-    baseUrl: "http://bookstore.local/api",
+    baseUrl: "http://cart-service:8082", 
     prepareHeaders: (headers, { getState }) => {
       const state = getState();
       const token =

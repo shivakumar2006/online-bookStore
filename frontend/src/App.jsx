@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import "./App.css";
 import Navbar from './components/Navbar';
 import Content from "./pages/content";
@@ -19,27 +19,37 @@ import Checkout from './pages/Checkout';
 import Success from './pages/Success';
 import Cancel from './pages/Cancel';
 import Orders from './pages/Orders';
+import { restoreUserFromStorage } from './redux/api/authSlice';
+import { useSelector } from "react-redux";
+import { useVerifyTokenQuery } from "./redux/api/jwtAuthSlice";
+import { logOutUser } from "./redux/api/authSlice";
 
 const App = () => {
 
     const dispatch = useDispatch();
+    const { token } = useSelector((state) => state.auth);
+
+  const [loadingUser, setLoadingUser] = useState(true);
 
   useEffect(() => {
-    const getSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session) {
-        dispatch(setUser(data.session)); // ✅ save session + token
-      }
-    };
-
-    getSession();
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      dispatch(setUser(session)); // ✅ update Redux whenever auth changes
-    });
-
-    return () => listener.subscription.unsubscribe();
+    dispatch(restoreUserFromStorage());
   }, [dispatch]);
+
+  const { data: verifyData, error: verifyError, isLoading: verifyLoading } = useVerifyTokenQuery(undefined, {
+  skip: !token,
+});
+
+useEffect(() => {
+  if (verifyData && verifyData.user) {
+    dispatch(setUser({ user: verifyData.user, token }));
+  }
+
+  if (verifyError) {
+    dispatch(logOutUser());
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  }
+}, [verifyData, verifyError, dispatch, token]);
 
 
   const location = useLocation();
@@ -49,6 +59,7 @@ const App = () => {
 
   return (
     <>
+    
       {!hideLayout && <Navbar />}
       <div className={`${!hideLayout ? "pt-16" : ""}`}>
         <Routes>

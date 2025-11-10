@@ -231,3 +231,51 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 		"message": "password updated successfully",
 	})
 }
+
+func VerifyToken(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// Get token from Authorization header
+	tokenHeader := r.Header.Get("Authorization")
+	if tokenHeader == "" {
+		http.Error(w, "Missing token", http.StatusUnauthorized)
+		return
+	}
+
+	// Usually header looks like: "Bearer <token>"
+	var tokenString string
+	fmt.Sscanf(tokenHeader, "Bearer %s", &tokenString)
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return JwtKey, nil
+	})
+	if err != nil || !token.Valid {
+		http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
+		return
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		http.Error(w, "Invalid token claims", http.StatusUnauthorized)
+		return
+	}
+
+	userId := claims["userId"].(string)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var user models.User
+	objID, _ := primitive.ObjectIDFromHex(userId)
+	err = UserCollection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	user.Password = ""
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"valid": true,
+		"user":  user,
+	})
+}

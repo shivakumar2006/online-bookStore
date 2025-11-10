@@ -20,8 +20,29 @@ spec:
                 port:
                   number: 8080
 
-          # Auth API (rewrite /api-auth/... -> auth)
-          - path: /api(/auth)(/|$)(.*)
+          # Cart API
+          
+
+          # Wishlist API
+          - path: /api/wishlist(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: wishlist-service
+                port:
+                  number: 8083
+
+          # Order/Payment API
+          - path: /api/order(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: order-service
+                port:
+                  number: 8084
+
+          # Auth API
+          - path: /api/auth(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
               service:
@@ -29,7 +50,16 @@ spec:
                 port:
                   number: 8081
 
-          # Static assets - no rewrite!
+          # Images - no rewrite
+          - path: /books/images(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 8080
+
+          # Frontend static assets
           - path: /assets(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
@@ -38,7 +68,7 @@ spec:
                 port:
                   number: 80
 
-          # React SPA fallback
+          # SPA fallback
           - path: /(.*)
             pathType: ImplementationSpecific
             backend:

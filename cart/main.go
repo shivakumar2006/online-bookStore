@@ -45,7 +45,7 @@ func main() {
 	cc := &controllers.CartController{
 		CartCollection: cartCollection,
 		JwtKey:         []byte(os.Getenv("JWT_SECRET")),
-		BookServiceURL: "http://localhost:8080",
+		BookServiceURL: "http://backend-service:8080",
 	}
 
 	router := mux.NewRouter()

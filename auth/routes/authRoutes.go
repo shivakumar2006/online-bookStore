@@ -12,5 +12,6 @@ func AuthRoutes(router *mux.Router) {
 	router.HandleFunc("/login", controllers.Login).Methods("POST")
 	router.HandleFunc("/forgot-password", controllers.ForgotPassword).Methods("POST")
 	router.HandleFunc("/reset-password", controllers.ResetPassword).Methods("POST")
+	router.HandleFunc("/verify", controllers.VerifyToken).Methods("GET")
 	router.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
 }
