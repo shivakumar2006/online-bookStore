@@ -43,10 +43,10 @@ const Success = () => {
       <div className="flex flex-col mt-10 items-center justify-center gap-2">
         <p>Check out your order from here</p>
         <button
-          onClick={() => navigate("/orders")}
+          onClick={() => navigate("/")}
           className="px-6 py-2 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-colors"
         >
-          Orders
+          Home page
         </button>
       </div>
     </div>

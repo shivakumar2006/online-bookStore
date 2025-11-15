@@ -12,7 +12,7 @@ func BookRoutes(router *mux.Router) {
 	router.HandleFunc("/books/{id}", controllers.GetBooksByID).Methods("GET")
 	router.PathPrefix("/books/images/").Handler(
 		http.StripPrefix("/books/images/",
-			http.FileServer(http.Dir("/app/data/books"))),
+			http.FileServer(http.Dir("../data/books"))),
 	)
 
 	// future:

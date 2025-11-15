@@ -3,8 +3,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const wishlistApi = createApi({
     reducerPath: "wishlistApi",
     baseQuery: fetchBaseQuery({
-        // baseUrl: "http://localhost:8083",
-        baseUrl: "http://bookstore.local/api",
+        baseUrl: "http://localhost:8083",
+        // baseUrl: "http://bookstore.local/api",
         credentials: "include",
         prepareHeaders: (headers, { getState }) => {
             const state = getState();

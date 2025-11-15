@@ -21,7 +21,13 @@ spec:
                   number: 8080
 
           # Cart API
-          
+          - path: /api/cart(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: cart-service
+                port:
+                  number: 8082
 
           # Wishlist API
           - path: /api/wishlist(/|$)(.*)

@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -18,16 +16,16 @@ import (
 )
 
 func main() {
-	// 🧩 Load Mongo credentials from environment variables
-	username := os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	password := os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+	// // 🧩 Load Mongo credentials from environment variables
+	// username := os.Getenv("MONGO_INITDB_ROOT_USERNAME")
+	// password := os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 
-	if username == "" || password == "" {
-		log.Fatal("❌ Mongo credentials not found in environment variables")
-	}
+	// if username == "" || password == "" {
+	// 	log.Fatal("❌ Mongo credentials not found in environment variables")
+	// }
 
 	// 🧠 Connect using env-based credentials
-	uri := fmt.Sprintf("mongodb://%s:%s@mongodb-service:27017", username, password)
+	uri := "mongodb://localhost:27017"
 	clientOptions := options.Client().ApplyURI(uri)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -46,7 +44,7 @@ func main() {
 
 	// 🌐 Setup CORS for frontend
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://bookstore.local"},
+		AllowedOrigins:   []string{"http://localhost:5173"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,

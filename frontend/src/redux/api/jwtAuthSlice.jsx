@@ -4,8 +4,8 @@ import { setUser, logOutUser } from "./authSlice";
 export const jwtAuthApi = createApi({
   reducerPath: "jwtAuthApi",
   baseQuery: fetchBaseQuery({
-    // baseUrl: "http://localhost:8081",
-    baseUrl: "http://bookstore.local/api/auth",
+    baseUrl: "http://localhost:8081",
+    // baseUrl: "http://bookstore.local/api/auth",
     prepareHeaders: (headers, { getState }) => {
       const token = getState().auth.token;
       if (token) {
